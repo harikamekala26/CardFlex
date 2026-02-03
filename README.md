@@ -37,7 +37,7 @@ https://cardflex.com?company=citibank
 
 ### Members
 
-Pooja Aslesha Kunchepu (Back-end)
-Ashrita Yanala (Back-end)
-Harika Mekala (Front-end)
-Venkata Ratna Chandu Gembali (Front-end)
+- Pooja Aslesha Kunchepu (Back-end)
+- Ashrita Yanala (Back-end)
+- Harika Mekala (Front-end)
+- Venkata Ratna Chandu Gembali (Front-end)
