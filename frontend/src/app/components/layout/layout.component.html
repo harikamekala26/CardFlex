@@ -1,0 +1,17 @@
+<div class="app-shell">
+  <header class="app-header">
+    <div class="brand">{{ tenantName }}</div>
+    <nav class="links">
+      <a [routerLink]="['/']" [queryParams]="{ company: companyCode ?? undefined }">Home</a>
+      <a [routerLink]="['/register']" [queryParams]="{ company: companyCode ?? undefined }">Register</a>
+      <a [routerLink]="['/login']" [queryParams]="{ company: companyCode ?? undefined }">Login</a>
+      <button type="button" (click)="logout()" *ngIf="authService.isAuthenticated()">Logout</button>
+    </nav>
+  </header>
+
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="app-footer">CardFlex Multi-Tenant SaaS Platform</footer>
+</div>

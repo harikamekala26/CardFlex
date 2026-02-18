@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/dashboard/dashboard.component.css"],
+  "sourcesContent": [".dashboard {\n  background: #ffffff;\n  padding: 24px;\n  border-radius: 14px;\n  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);\n}\n\n.card-block {\n  border: 1px solid #dbe3ef;\n  border-left: 6px solid var(--tenant-color);\n  border-radius: 10px;\n  padding: 12px;\n  margin-bottom: 18px;\n}\n\ntable {\n  width: 100%;\n  border-collapse: collapse;\n}\n\nth,\ntd {\n  border-bottom: 1px solid #e5e7eb;\n  padding: 10px;\n  text-align: left;\n}\n\n.error {\n  color: #b91c1c;\n}\n"],
+  "mappings": ";AAAA,CAAC;AACC,cAAY;AACZ,WAAS;AACT,iBAAe;AACf,cAAY,EAAE,KAAK,KAAK,KAAK,EAAE,EAAE,EAAE,EAAE,EAAE,EAAE;AAC3C;AAEA,CAAC;AACC,UAAQ,IAAI,MAAM;AAClB,eAAa,IAAI,MAAM,IAAI;AAC3B,iBAAe;AACf,WAAS;AACT,iBAAe;AACjB;AAEA;AACE,SAAO;AACP,mBAAiB;AACnB;AAEA;AACA;AACE,iBAAe,IAAI,MAAM;AACzB,WAAS;AACT,cAAY;AACd;AAEA,CAAC;AACC,SAAO;AACT;",
+  "names": []
+}

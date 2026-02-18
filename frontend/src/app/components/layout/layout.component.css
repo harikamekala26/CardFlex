@@ -1,0 +1,48 @@
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.app-header {
+  background: var(--tenant-color);
+  color: #ffffff;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.links {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.links a,
+.links button {
+  color: #ffffff;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.app-main {
+  width: min(980px, 92vw);
+  margin: 28px auto;
+}
+
+.app-footer {
+  background: #111827;
+  color: #f9fafb;
+  text-align: center;
+  padding: 12px;
+}
