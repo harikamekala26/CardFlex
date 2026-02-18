@@ -11,6 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
 .brand {
@@ -18,8 +19,63 @@
   font-weight: 700;
 }
 
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-art {
+  position: relative;
+  width: 72px;
+  height: 44px;
+}
+
+.card {
+  position: absolute;
+  border-radius: 8px;
+  width: 56px;
+  height: 36px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+.card-back {
+  right: 0;
+  top: 0;
+  background: linear-gradient(135deg, #c2e9fb, #81a4fd);
+  transform: rotate(-6deg);
+}
+
+.card-front {
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #fff8e7, #f8b500);
+  transform: rotate(6deg);
+}
+
+.chip {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 12px;
+  height: 9px;
+  border-radius: 2px;
+  background: #d69f3d;
+}
+
+.card-dots {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.24);
+}
+
 .links {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
 }
@@ -43,6 +99,43 @@
 .app-footer {
   background: #111827;
   color: #f9fafb;
-  text-align: center;
-  padding: 12px;
+  padding: 16px 20px 20px;
+}
+
+.footer-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.partner-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.partner-card h4 {
+  margin: 0 0 8px;
+}
+
+.partner-card p {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 760px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .links {
+    width: 100%;
+  }
 }

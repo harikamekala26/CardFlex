@@ -1,6 +1,15 @@
 <div class="app-shell">
   <header class="app-header">
-    <div class="brand">{{ tenantName }}</div>
+    <div class="brand-wrap">
+      <div class="brand">{{ tenantName }}</div>
+      <div class="card-art" aria-hidden="true">
+        <div class="card card-back"></div>
+        <div class="card card-front">
+          <span class="chip"></span>
+          <span class="card-dots"></span>
+        </div>
+      </div>
+    </div>
     <nav class="links">
       <a [routerLink]="['/']" [queryParams]="{ company: companyCode ?? undefined }">Home</a>
       <a [routerLink]="['/register']" [queryParams]="{ company: companyCode ?? undefined }">Register</a>
@@ -13,5 +22,15 @@
     <router-outlet></router-outlet>
   </main>
 
-  <footer class="app-footer">CardFlex Multi-Tenant SaaS Platform</footer>
+  <footer class="app-footer">
+    <div class="footer-title">Partner Contact & Billing</div>
+    <div class="footer-grid">
+      <article class="partner-card" *ngFor="let partner of footerPartners">
+        <h4>{{ partner.name }}</h4>
+        <p><strong>Contact:</strong> {{ partner.contactNumber }}</p>
+        <p><strong>Address:</strong> {{ partner.address }}</p>
+        <p><strong>Billing:</strong> {{ partner.billingDetails }}</p>
+      </article>
+    </div>
+  </footer>
 </div>

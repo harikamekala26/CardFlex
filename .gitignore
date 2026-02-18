@@ -2,4 +2,12 @@
 tools/mongodb/
 tools/mongodb-data/
 tools/*.tgz
-
+node_modules/
+frontend/node_modules/
+frontend/.angular/
+frontend/.angular/cache/
+.angular/cache/
+.angularcache/
+frontend/dist/
+backend/.gocache/
+backend/.gomodcache/
