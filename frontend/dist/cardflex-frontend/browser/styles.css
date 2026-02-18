@@ -1,6 +1,7 @@
 /* src/styles.css */
 :root {
-  --tenant-color: #00539c;
+  --tenant-color: #0f172a;
+  --tenant-secondary-color: #475569;
   --background-color: #f3f5f8;
   --text-color: #1f2937;
 }

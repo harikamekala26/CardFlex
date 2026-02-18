@@ -33,7 +33,11 @@ export class LayoutComponent implements OnInit {
   }
 
   get tenantName(): string {
-    return this.tenantService.getTenant()?.name ?? 'CardFlex';
+    return this.tenantService.getResolvedTenant().name;
+  }
+
+  get tenantLogo(): string {
+    return this.tenantService.getResolvedTenant().theme.logoUrl;
   }
 
   get activeTenant() {
@@ -52,16 +56,9 @@ export class LayoutComponent implements OnInit {
   }
 
   private applyTenantBranding(): void {
-    const tenant = this.activeTenant;
-    if (!tenant) {
-      document.title = 'CardFlex';
-      document.documentElement.style.setProperty('--tenant-color', '#00539C');
-      document.documentElement.style.setProperty('--tenant-secondary-color', '#8FB4D8');
-      return;
-    }
-
+    const tenant = this.tenantService.getResolvedTenant();
     document.title = `${tenant.name} | CardFlex`;
-    document.documentElement.style.setProperty('--tenant-color', tenant.primaryColor);
-    document.documentElement.style.setProperty('--tenant-secondary-color', tenant.secondaryColor);
+    document.documentElement.style.setProperty('--tenant-color', tenant.theme.primaryColor);
+    document.documentElement.style.setProperty('--tenant-secondary-color', tenant.theme.secondaryColor);
   }
 }

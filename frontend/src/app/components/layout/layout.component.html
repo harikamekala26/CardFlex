@@ -1,6 +1,7 @@
 <div class="app-shell">
   <header class="app-header">
     <div class="brand-wrap">
+      <img class="brand-logo" [src]="tenantLogo" [alt]="tenantName + ' logo'" />
       <div class="brand">{{ tenantName }}</div>
       <div class="card-art" aria-hidden="true">
         <div class="card card-back" [style.background]="activeTenant?.cardArt?.backGradient ?? null"></div>

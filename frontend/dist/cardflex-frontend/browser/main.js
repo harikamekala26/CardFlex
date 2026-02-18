@@ -35661,33 +35661,105 @@ function provideRouterInitializer() {
 }
 var VERSION4 = new Version("18.2.14");
 
+// src/app/config/tenant-config.ts
+var DEFAULT_TENANT = {
+  companyCode: "cardflex",
+  name: "CardFlex",
+  theme: {
+    primaryColor: "#00539C",
+    secondaryColor: "#8FB4D8",
+    logoUrl: "https://placehold.co/132x36/00539C/ffffff?text=CardFlex"
+  },
+  contactAddress: "100 Main St, New York, NY 10001",
+  mobileNumber: "+1 (800) 555-0100",
+  termsAndConditions: "Standard CardFlex terms apply. Statement generated monthly and payment due within 25 days.",
+  cardArt: {
+    frontGradient: "linear-gradient(135deg, #fff8e7, #f8b500)",
+    backGradient: "linear-gradient(135deg, #c2e9fb, #81a4fd)"
+  },
+  image: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=1200&q=80"
+};
+var TENANT_CONFIGS = {
+  "chase-bank": {
+    companyCode: "chase-bank",
+    name: "Chase Bank",
+    theme: {
+      primaryColor: "#0A2A66",
+      secondaryColor: "#2E8BC0",
+      logoUrl: "https://placehold.co/132x36/0A2A66/ffffff?text=Chase+Bank"
+    },
+    contactAddress: "270 Park Ave, New York, NY 10017",
+    mobileNumber: "+1 (800) 935-9935",
+    termsAndConditions: "APR, fees, and rewards are subject to Chase Bank cardmember agreement and credit approval.",
+    cardArt: {
+      frontGradient: "linear-gradient(135deg, #dbeafe, #60a5fa)",
+      backGradient: "linear-gradient(135deg, #0A2A66, #2E8BC0)"
+    },
+    image: "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=1200&q=80"
+  },
+  "wells-fargo": {
+    companyCode: "wells-fargo",
+    name: "Wells Fargo",
+    theme: {
+      primaryColor: "#B31B1B",
+      secondaryColor: "#F2C94C",
+      logoUrl: "https://placehold.co/132x36/B31B1B/ffffff?text=Wells+Fargo"
+    },
+    contactAddress: "420 Montgomery St, San Francisco, CA 94104",
+    mobileNumber: "+1 (800) 869-3557",
+    termsAndConditions: "Wells Fargo credit products are subject to account agreement, eligibility, and applicable state laws.",
+    cardArt: {
+      frontGradient: "linear-gradient(135deg, #fee2e2, #ef4444)",
+      backGradient: "linear-gradient(135deg, #B31B1B, #F2C94C)"
+    },
+    image: "https://images.unsplash.com/photo-1565514020179-026b92b84bb6?auto=format&fit=crop&w=1200&q=80"
+  },
+  "capital-one": {
+    companyCode: "capital-one",
+    name: "Capital One",
+    theme: {
+      primaryColor: "#003B95",
+      secondaryColor: "#D62728",
+      logoUrl: "https://placehold.co/132x36/003B95/ffffff?text=Capital+One"
+    },
+    contactAddress: "1680 Capital One Dr, McLean, VA 22102",
+    mobileNumber: "+1 (877) 383-4802",
+    termsAndConditions: "Capital One card terms, credit limits, and rewards are governed by your signed card agreement.",
+    cardArt: {
+      frontGradient: "linear-gradient(135deg, #dbeafe, #2563eb)",
+      backGradient: "linear-gradient(135deg, #003B95, #D62728)"
+    },
+    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?auto=format&fit=crop&w=1200&q=80"
+  }
+};
+
 // src/app/services/tenant.service.ts
 var TenantService = class _TenantService {
   tenant = null;
-  tenantMap = {
-    acme: { name: "Acme Card", themeColor: "#0B6E4F" },
-    nova: { name: "Nova Finance", themeColor: "#C84B31" },
-    prime: { name: "Prime Credit", themeColor: "#00539C" }
-  };
   setFromCompanyCode(companyCode) {
     if (!companyCode) {
       this.tenant = null;
+      console.log("Tenant company from URL:", null);
       return;
     }
     const normalized = companyCode.toLowerCase();
-    const fromMap = this.tenantMap[normalized] ?? {
-      name: `${normalized.toUpperCase()} Cards`,
-      themeColor: "#00539C"
-    };
-    this.tenant = __spreadValues({
-      companyCode: normalized
-    }, fromMap);
+    this.tenant = TENANT_CONFIGS[normalized] ?? __spreadProps(__spreadValues({}, DEFAULT_TENANT), {
+      companyCode: normalized,
+      name: `${normalized.toUpperCase()} Cards`
+    });
+    console.log("Tenant company from URL:", this.tenant.companyCode);
   }
   getTenant() {
     return this.tenant;
   }
+  getResolvedTenant() {
+    return this.tenant ?? DEFAULT_TENANT;
+  }
   getCompanyCode() {
     return this.tenant?.companyCode ?? null;
+  }
+  getAllPartners() {
+    return Object.values(TENANT_CONFIGS);
   }
   static \u0275fac = function TenantService_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _TenantService)();
@@ -35738,11 +35810,11 @@ var _c0 = () => ["/"];
 var _c1 = (a0) => ({ company: a0 });
 var _c2 = () => ["/register"];
 var _c3 = () => ["/login"];
-function LayoutComponent_button_11_Template(rf, ctx) {
+function LayoutComponent_button_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 8);
-    \u0275\u0275listener("click", function LayoutComponent_button_11_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function LayoutComponent_button_18_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.logout());
@@ -35751,24 +35823,74 @@ function LayoutComponent_button_11_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
+function LayoutComponent_article_25_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "article", 19)(1, "h4");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(3, "img", 20);
+    \u0275\u0275elementStart(4, "p")(5, "strong");
+    \u0275\u0275text(6, "Mobile:");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "p")(9, "strong");
+    \u0275\u0275text(10, "Address:");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(11);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "p")(13, "strong");
+    \u0275\u0275text(14, "Terms:");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(15);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const partner_r3 = ctx.$implicit;
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(partner_r3.name);
+    \u0275\u0275advance();
+    \u0275\u0275property("src", partner_r3.image, \u0275\u0275sanitizeUrl)("alt", partner_r3.name + " card preview");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", partner_r3.mobileNumber, "");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", partner_r3.contactAddress, "");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", partner_r3.termsAndConditions, "");
+  }
+}
 var LayoutComponent = class _LayoutComponent {
+  route;
   router;
   tenantService;
   authService;
-  constructor(router, tenantService, authService) {
+  constructor(route, router, tenantService, authService) {
+    this.route = route;
     this.router = router;
     this.tenantService = tenantService;
     this.authService = authService;
   }
   ngOnInit() {
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => this.syncTenantFromUrl());
-    this.syncTenantFromUrl();
+    this.route.queryParamMap.subscribe((params) => {
+      const company = params.get("company");
+      this.tenantService.setFromCompanyCode(company);
+      this.applyTenantBranding();
+    });
   }
   get companyCode() {
     return this.tenantService.getCompanyCode();
   }
   get tenantName() {
-    return this.tenantService.getTenant()?.name ?? "CardFlex";
+    return this.tenantService.getResolvedTenant().name;
+  }
+  get tenantLogo() {
+    return this.tenantService.getResolvedTenant().theme.logoUrl;
+  }
+  get activeTenant() {
+    return this.tenantService.getTenant();
+  }
+  get footerPartners() {
+    return this.activeTenant ? [this.activeTenant] : this.tenantService.getAllPartners();
   }
   logout() {
     this.authService.logout();
@@ -35776,61 +35898,74 @@ var LayoutComponent = class _LayoutComponent {
       queryParams: { company: this.companyCode ?? void 0 }
     });
   }
-  syncTenantFromUrl() {
-    const tree2 = this.router.parseUrl(this.router.url);
-    const company = tree2.queryParams["company"] ?? null;
-    this.tenantService.setFromCompanyCode(company);
-    const tenant = this.tenantService.getTenant();
-    if (!tenant) {
-      document.title = "CardFlex";
-      document.documentElement.style.setProperty("--tenant-color", "#00539C");
-      return;
-    }
+  applyTenantBranding() {
+    const tenant = this.tenantService.getResolvedTenant();
     document.title = `${tenant.name} | CardFlex`;
-    document.documentElement.style.setProperty("--tenant-color", tenant.themeColor);
+    document.documentElement.style.setProperty("--tenant-color", tenant.theme.primaryColor);
+    document.documentElement.style.setProperty("--tenant-secondary-color", tenant.theme.secondaryColor);
   }
   static \u0275fac = function LayoutComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _LayoutComponent)(\u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(TenantService), \u0275\u0275directiveInject(AuthService));
+    return new (__ngFactoryType__ || _LayoutComponent)(\u0275\u0275directiveInject(ActivatedRoute), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(TenantService), \u0275\u0275directiveInject(AuthService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LayoutComponent, selectors: [["app-layout"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 16, vars: 17, consts: [[1, "app-shell"], [1, "app-header"], [1, "brand"], [1, "links"], [3, "routerLink", "queryParams"], ["type", "button", 3, "click", 4, "ngIf"], [1, "app-main"], [1, "app-footer"], ["type", "button", 3, "click"]], template: function LayoutComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LayoutComponent, selectors: [["app-layout"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 26, vars: 24, consts: [[1, "app-shell"], [1, "app-header"], [1, "brand-wrap"], [1, "brand-logo", 3, "src", "alt"], [1, "brand"], ["aria-hidden", "true", 1, "card-art"], [1, "card", "card-back"], [1, "card", "card-front"], [1, "chip"], [1, "card-dots"], [1, "links"], [3, "routerLink", "queryParams"], ["type", "button", 3, "click", 4, "ngIf"], [1, "app-main"], [1, "app-footer"], [1, "footer-title"], [1, "footer-grid"], ["class", "partner-card", 4, "ngFor", "ngForOf"], ["type", "button", 3, "click"], [1, "partner-card"], [1, "partner-image", 3, "src", "alt"]], template: function LayoutComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "div", 2);
-      \u0275\u0275text(3);
+      \u0275\u0275element(3, "img", 3);
+      \u0275\u0275elementStart(4, "div", 4);
+      \u0275\u0275text(5);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "nav", 3)(5, "a", 4);
-      \u0275\u0275text(6, "Home");
+      \u0275\u0275elementStart(6, "div", 5);
+      \u0275\u0275element(7, "div", 6);
+      \u0275\u0275elementStart(8, "div", 7);
+      \u0275\u0275element(9, "span", 8)(10, "span", 9);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(11, "nav", 10)(12, "a", 11);
+      \u0275\u0275text(13, "Home");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(7, "a", 4);
-      \u0275\u0275text(8, "Register");
+      \u0275\u0275elementStart(14, "a", 11);
+      \u0275\u0275text(15, "Register");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(9, "a", 4);
-      \u0275\u0275text(10, "Login");
+      \u0275\u0275elementStart(16, "a", 11);
+      \u0275\u0275text(17, "Login");
       \u0275\u0275elementEnd();
-      \u0275\u0275template(11, LayoutComponent_button_11_Template, 2, 0, "button", 5);
+      \u0275\u0275template(18, LayoutComponent_button_18_Template, 2, 0, "button", 12);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(12, "main", 6);
-      \u0275\u0275element(13, "router-outlet");
+      \u0275\u0275elementStart(19, "main", 13);
+      \u0275\u0275element(20, "router-outlet");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(14, "footer", 7);
-      \u0275\u0275text(15, "CardFlex Multi-Tenant SaaS Platform");
-      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(21, "footer", 14)(22, "div", 15);
+      \u0275\u0275text(23, "Partner Contact & Billing");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(24, "div", 16);
+      \u0275\u0275template(25, LayoutComponent_article_25_Template, 16, 6, "article", 17);
+      \u0275\u0275elementEnd()()();
     }
     if (rf & 2) {
-      let tmp_2_0;
+      let tmp_3_0;
       let tmp_4_0;
       let tmp_6_0;
+      let tmp_8_0;
+      let tmp_10_0;
       \u0275\u0275advance(3);
+      \u0275\u0275property("src", ctx.tenantLogo, \u0275\u0275sanitizeUrl)("alt", ctx.tenantName + " logo");
+      \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.tenantName);
       \u0275\u0275advance(2);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(8, _c0))("queryParams", \u0275\u0275pureFunction1(9, _c1, (tmp_2_0 = ctx.companyCode) !== null && tmp_2_0 !== void 0 ? tmp_2_0 : void 0));
+      \u0275\u0275styleProp("background", (tmp_3_0 = ctx.activeTenant == null ? null : ctx.activeTenant.cardArt == null ? null : ctx.activeTenant.cardArt.backGradient) !== null && tmp_3_0 !== void 0 ? tmp_3_0 : null);
+      \u0275\u0275advance();
+      \u0275\u0275styleProp("background", (tmp_4_0 = ctx.activeTenant == null ? null : ctx.activeTenant.cardArt == null ? null : ctx.activeTenant.cardArt.frontGradient) !== null && tmp_4_0 !== void 0 ? tmp_4_0 : null);
+      \u0275\u0275advance(4);
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(15, _c0))("queryParams", \u0275\u0275pureFunction1(16, _c1, (tmp_6_0 = ctx.companyCode) !== null && tmp_6_0 !== void 0 ? tmp_6_0 : void 0));
       \u0275\u0275advance(2);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(11, _c2))("queryParams", \u0275\u0275pureFunction1(12, _c1, (tmp_4_0 = ctx.companyCode) !== null && tmp_4_0 !== void 0 ? tmp_4_0 : void 0));
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(18, _c2))("queryParams", \u0275\u0275pureFunction1(19, _c1, (tmp_8_0 = ctx.companyCode) !== null && tmp_8_0 !== void 0 ? tmp_8_0 : void 0));
       \u0275\u0275advance(2);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(14, _c3))("queryParams", \u0275\u0275pureFunction1(15, _c1, (tmp_6_0 = ctx.companyCode) !== null && tmp_6_0 !== void 0 ? tmp_6_0 : void 0));
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(21, _c3))("queryParams", \u0275\u0275pureFunction1(22, _c1, (tmp_10_0 = ctx.companyCode) !== null && tmp_10_0 !== void 0 ? tmp_10_0 : void 0));
       \u0275\u0275advance(2);
       \u0275\u0275property("ngIf", ctx.authService.isAuthenticated());
+      \u0275\u0275advance(7);
+      \u0275\u0275property("ngForOf", ctx.footerPartners);
     }
-  }, dependencies: [CommonModule, NgIf, RouterOutlet, RouterLink], styles: ["\n\n.app-shell[_ngcontent-%COMP%] {\n  min-height: 100vh;\n  display: grid;\n  grid-template-rows: auto 1fr auto;\n}\n.app-header[_ngcontent-%COMP%] {\n  background: var(--tenant-color);\n  color: #ffffff;\n  padding: 14px 24px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n.brand[_ngcontent-%COMP%] {\n  font-size: 1.15rem;\n  font-weight: 700;\n}\n.links[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  align-items: center;\n}\n.links[_ngcontent-%COMP%]   a[_ngcontent-%COMP%], \n.links[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: #ffffff;\n  text-decoration: none;\n  border: 1px solid rgba(255, 255, 255, 0.5);\n  background: transparent;\n  padding: 6px 10px;\n  border-radius: 8px;\n  font-size: 0.9rem;\n}\n.app-main[_ngcontent-%COMP%] {\n  width: min(980px, 92vw);\n  margin: 28px auto;\n}\n.app-footer[_ngcontent-%COMP%] {\n  background: #111827;\n  color: #f9fafb;\n  text-align: center;\n  padding: 12px;\n}\n/*# sourceMappingURL=layout.component.css.map */"] });
+  }, dependencies: [CommonModule, NgForOf, NgIf, RouterOutlet, RouterLink], styles: ["\n\n.app-shell[_ngcontent-%COMP%] {\n  min-height: 100vh;\n  display: grid;\n  grid-template-rows: auto 1fr auto;\n}\n.app-header[_ngcontent-%COMP%] {\n  background: var(--tenant-color);\n  color: #ffffff;\n  padding: 14px 24px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  gap: 12px;\n}\n.brand[_ngcontent-%COMP%] {\n  font-size: 1.15rem;\n  font-weight: 700;\n}\n.brand-wrap[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n.brand-logo[_ngcontent-%COMP%] {\n  width: 132px;\n  height: 36px;\n  object-fit: contain;\n  border-radius: 6px;\n  background: rgba(255, 255, 255, 0.08);\n  padding: 3px 4px;\n}\n.card-art[_ngcontent-%COMP%] {\n  position: relative;\n  width: 72px;\n  height: 44px;\n}\n.card[_ngcontent-%COMP%] {\n  position: absolute;\n  border-radius: 8px;\n  width: 56px;\n  height: 36px;\n  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);\n}\n.card-back[_ngcontent-%COMP%] {\n  right: 0;\n  top: 0;\n  background:\n    linear-gradient(\n      135deg,\n      #c2e9fb,\n      #81a4fd);\n  transform: rotate(-6deg);\n}\n.card-front[_ngcontent-%COMP%] {\n  left: 0;\n  bottom: 0;\n  background:\n    linear-gradient(\n      135deg,\n      #fff8e7,\n      #f8b500);\n  transform: rotate(6deg);\n}\n.chip[_ngcontent-%COMP%] {\n  position: absolute;\n  left: 8px;\n  top: 8px;\n  width: 12px;\n  height: 9px;\n  border-radius: 2px;\n  background: #d69f3d;\n}\n.card-dots[_ngcontent-%COMP%] {\n  position: absolute;\n  right: 7px;\n  bottom: 7px;\n  width: 22px;\n  height: 3px;\n  border-radius: 999px;\n  background: rgba(0, 0, 0, 0.24);\n}\n.links[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 12px;\n  align-items: center;\n}\n.links[_ngcontent-%COMP%]   a[_ngcontent-%COMP%], \n.links[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: #ffffff;\n  text-decoration: none;\n  border: 1px solid rgba(255, 255, 255, 0.5);\n  background: transparent;\n  padding: 6px 10px;\n  border-radius: 8px;\n  font-size: 0.9rem;\n}\n.app-main[_ngcontent-%COMP%] {\n  width: min(980px, 92vw);\n  margin: 28px auto;\n}\n.app-footer[_ngcontent-%COMP%] {\n  background: #111827;\n  color: #f9fafb;\n  padding: 16px 20px 20px;\n  border-top: 4px solid var(--tenant-secondary-color);\n}\n.footer-title[_ngcontent-%COMP%] {\n  font-weight: 700;\n  margin-bottom: 10px;\n}\n.footer-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));\n  gap: 10px;\n}\n.partner-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.06);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  border-radius: 10px;\n  padding: 10px 12px;\n}\n.partner-card[_ngcontent-%COMP%]   h4[_ngcontent-%COMP%] {\n  margin: 0 0 8px;\n}\n.partner-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  margin: 0 0 6px;\n  font-size: 0.9rem;\n}\n.partner-image[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 96px;\n  object-fit: cover;\n  border-radius: 8px;\n  margin-bottom: 8px;\n}\n@media (max-width: 760px) {\n  .app-header[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: flex-start;\n  }\n  .links[_ngcontent-%COMP%] {\n    width: 100%;\n  }\n}\n/*# sourceMappingURL=layout.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LayoutComponent, { className: "LayoutComponent" });
@@ -35876,13 +36011,16 @@ var HomeComponent = class _HomeComponent {
   get companyCode() {
     return this.tenantService.getCompanyCode();
   }
+  get tenantName() {
+    return this.tenantService.getResolvedTenant().name;
+  }
   static \u0275fac = function HomeComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _HomeComponent)(\u0275\u0275directiveInject(TenantService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _HomeComponent, selectors: [["app-home"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 14, vars: 11, consts: [[1, "card"], [1, "actions"], [3, "routerLink", "queryParams"]], template: function HomeComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _HomeComponent, selectors: [["app-home"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 14, vars: 12, consts: [[1, "card"], [1, "actions"], [3, "routerLink", "queryParams"]], template: function HomeComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "section", 0)(1, "h1");
-      \u0275\u0275text(2, "Welcome to CardFlex");
+      \u0275\u0275text(2);
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(3, "p");
       \u0275\u0275text(4, "Tenant company detected from URL: ");
@@ -35900,14 +36038,16 @@ var HomeComponent = class _HomeComponent {
       \u0275\u0275elementEnd()()();
     }
     if (rf & 2) {
-      let tmp_2_0;
-      let tmp_4_0;
-      \u0275\u0275advance(6);
+      let tmp_3_0;
+      let tmp_5_0;
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1("Welcome to ", ctx.tenantName, "");
+      \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.companyCode || "Not set");
       \u0275\u0275advance(4);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(5, _c02))("queryParams", \u0275\u0275pureFunction1(6, _c12, (tmp_2_0 = ctx.companyCode) !== null && tmp_2_0 !== void 0 ? tmp_2_0 : void 0));
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(6, _c02))("queryParams", \u0275\u0275pureFunction1(7, _c12, (tmp_3_0 = ctx.companyCode) !== null && tmp_3_0 !== void 0 ? tmp_3_0 : void 0));
       \u0275\u0275advance(2);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(8, _c22))("queryParams", \u0275\u0275pureFunction1(9, _c12, (tmp_4_0 = ctx.companyCode) !== null && tmp_4_0 !== void 0 ? tmp_4_0 : void 0));
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(9, _c22))("queryParams", \u0275\u0275pureFunction1(10, _c12, (tmp_5_0 = ctx.companyCode) !== null && tmp_5_0 !== void 0 ? tmp_5_0 : void 0));
     }
   }, dependencies: [RouterLink], styles: ["\n\n.card[_ngcontent-%COMP%] {\n  background: #ffffff;\n  border-radius: 14px;\n  padding: 28px;\n  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);\n}\n.actions[_ngcontent-%COMP%] {\n  margin-top: 16px;\n  display: flex;\n  gap: 12px;\n}\n.actions[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  display: inline-block;\n  text-decoration: none;\n  color: #ffffff;\n  background: var(--tenant-color);\n  padding: 10px 16px;\n  border-radius: 8px;\n}\n/*# sourceMappingURL=home.component.css.map */"] });
 };
