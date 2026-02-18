@@ -1,0 +1,5 @@
+.DS_Store
+tools/mongodb/
+tools/mongodb-data/
+tools/*.tgz
+
