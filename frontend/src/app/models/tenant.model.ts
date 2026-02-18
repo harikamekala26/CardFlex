@@ -1,8 +1,11 @@
 export interface Tenant {
   companyCode: string;
   name: string;
-  primaryColor: string;
-  secondaryColor: string;
+  theme: {
+    primaryColor: string;
+    secondaryColor: string;
+    logoUrl: string;
+  };
   contactAddress: string;
   mobileNumber: string;
   termsAndConditions: string;

@@ -16,4 +16,8 @@ export class HomeComponent {
   get companyCode(): string | null {
     return this.tenantService.getCompanyCode();
   }
+
+  get tenantName(): string {
+    return this.tenantService.getResolvedTenant().name;
+  }
 }

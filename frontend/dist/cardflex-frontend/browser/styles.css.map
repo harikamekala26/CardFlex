@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["src/styles.css"],
-  "sourcesContent": [":root {\n  --tenant-color: #00539c;\n  --background-color: #f3f5f8;\n  --text-color: #1f2937;\n}\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n  background: radial-gradient(circle at top right, #e9eef5 0%, #f7f9fb 45%, #edf2f8 100%);\n  color: var(--text-color);\n}\n\nbutton {\n  cursor: pointer;\n}\n"],
-  "mappings": ";AAAA;AACE,kBAAgB;AAChB,sBAAoB;AACpB,gBAAc;AAChB;AAEA;AACE,cAAY;AACd;AAEA;AACE,UAAQ;AACR;AAAA,IAAa,UAAU;AAAA,IAAE,MAAM;AAAA,IAAE,MAAM;AAAA,IAAE,OAAO;AAAA,IAAE;AAClD;AAAA,IAAY;AAAA,MAAgB,OAAO,GAAG,IAAI,KAA9B;AAAA,MAAqC,QAAQ,EAA7C;AAAA,MAAiD,QAAQ,GAAzD;AAAA,MAA8D,QAAQ;AAClF,SAAO,IAAI;AACb;AAEA;AACE,UAAQ;AACV;",
+  "sourcesContent": [":root {\n  --tenant-color: #0f172a;\n  --tenant-secondary-color: #475569;\n  --background-color: #f3f5f8;\n  --text-color: #1f2937;\n}\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n  background: radial-gradient(circle at top right, #e9eef5 0%, #f7f9fb 45%, #edf2f8 100%);\n  color: var(--text-color);\n}\n\nbutton {\n  cursor: pointer;\n}\n"],
+  "mappings": ";AAAA;AACE,kBAAgB;AAChB,4BAA0B;AAC1B,sBAAoB;AACpB,gBAAc;AAChB;AAEA;AACE,cAAY;AACd;AAEA;AACE,UAAQ;AACR;AAAA,IAAa,UAAU;AAAA,IAAE,MAAM;AAAA,IAAE,MAAM;AAAA,IAAE,OAAO;AAAA,IAAE;AAClD;AAAA,IAAY;AAAA,MAAgB,OAAO,GAAG,IAAI,KAA9B;AAAA,MAAqC,QAAQ,EAA7C;AAAA,MAAiD,QAAQ,GAAzD;AAAA,MAA8D,QAAQ;AAClF,SAAO,IAAI;AACb;AAEA;AACE,UAAQ;AACV;",
   "names": []
 }

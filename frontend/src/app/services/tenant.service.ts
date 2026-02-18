@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { DEFAULT_PARTNER, PARTNER_CONFIGS } from '../config/partner-config';
+import { DEFAULT_TENANT, TENANT_CONFIGS } from '../config/tenant-config';
 import { Tenant } from '../models/tenant.model';
 
 @Injectable({ providedIn: 'root' })
@@ -15,8 +15,8 @@ export class TenantService {
     }
 
     const normalized = companyCode.toLowerCase();
-    this.tenant = PARTNER_CONFIGS[normalized] ?? {
-      ...DEFAULT_PARTNER,
+    this.tenant = TENANT_CONFIGS[normalized] ?? {
+      ...DEFAULT_TENANT,
       companyCode: normalized,
       name: `${normalized.toUpperCase()} Cards`
     };
@@ -28,11 +28,15 @@ export class TenantService {
     return this.tenant;
   }
 
+  getResolvedTenant(): Tenant {
+    return this.tenant ?? DEFAULT_TENANT;
+  }
+
   getCompanyCode(): string | null {
     return this.tenant?.companyCode ?? null;
   }
 
   getAllPartners(): Tenant[] {
-    return Object.values(PARTNER_CONFIGS);
+    return Object.values(TENANT_CONFIGS);
   }
 }
