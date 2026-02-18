@@ -1,0 +1,18 @@
+<section class="form-card">
+  <h2>Login</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label>
+      Email
+      <input formControlName="email" type="email" />
+    </label>
+
+    <label>
+      Password
+      <input formControlName="password" type="password" />
+    </label>
+
+    <button type="submit" [disabled]="submitting">{{ submitting ? 'Signing in...' : 'Sign In' }}</button>
+  </form>
+
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</section>
