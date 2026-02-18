@@ -36,6 +36,11 @@ export class LayoutComponent implements OnInit {
     return this.tenantService.getTenant()?.name ?? 'CardFlex';
   }
 
+  get footerPartners() {
+    const activeTenant = this.tenantService.getTenant();
+    return activeTenant ? [activeTenant] : this.tenantService.getAllPartners();
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login'], {

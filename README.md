@@ -33,6 +33,43 @@ https://cardflex.com?company=capital-one
 https://cardflex.com?company=citibank
 ```
 
+## Run Locally
+
+### Prerequisites
+
+- Node.js and npm
+- Go (1.22+ recommended)
+- MongoDB Atlas/local MongoDB connection string
+
+### 1) Start Backend
+
+```bash
+cd backend
+cp .env.example .env
+# Fill MONGO_URI, MONGO_DB, and JWT_SECRET in .env
+go run .
+```
+
+Backend runs on `http://localhost:8080` (health: `GET /ping`).
+
+### 2) Start Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Frontend runs on `http://localhost:4200`.
+
+### 3) Open Tenant URLs
+
+```text
+http://localhost:4200/?company=chase-bank
+http://localhost:4200/?company=capital-one
+http://localhost:4200/?company=citibank
+```
+
 ### Team: Resolvers
 
 ### Members
