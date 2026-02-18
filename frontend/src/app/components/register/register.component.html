@@ -1,0 +1,24 @@
+<section class="form-card">
+  <h2>Register</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label>
+      Name
+      <input formControlName="name" type="text" />
+    </label>
+
+    <label>
+      Email
+      <input formControlName="email" type="email" />
+    </label>
+
+    <label>
+      Password
+      <input formControlName="password" type="password" />
+    </label>
+
+    <button type="submit" [disabled]="submitting">{{ submitting ? 'Creating...' : 'Create Account' }}</button>
+  </form>
+
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+</section>
