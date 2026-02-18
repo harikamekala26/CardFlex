@@ -3,8 +3,8 @@
     <div class="brand-wrap">
       <div class="brand">{{ tenantName }}</div>
       <div class="card-art" aria-hidden="true">
-        <div class="card card-back"></div>
-        <div class="card card-front">
+        <div class="card card-back" [style.background]="activeTenant?.cardArt?.backGradient ?? null"></div>
+        <div class="card card-front" [style.background]="activeTenant?.cardArt?.frontGradient ?? null">
           <span class="chip"></span>
           <span class="card-dots"></span>
         </div>
@@ -27,9 +27,10 @@
     <div class="footer-grid">
       <article class="partner-card" *ngFor="let partner of footerPartners">
         <h4>{{ partner.name }}</h4>
-        <p><strong>Contact:</strong> {{ partner.contactNumber }}</p>
-        <p><strong>Address:</strong> {{ partner.address }}</p>
-        <p><strong>Billing:</strong> {{ partner.billingDetails }}</p>
+        <img class="partner-image" [src]="partner.image" [alt]="partner.name + ' card preview'" />
+        <p><strong>Mobile:</strong> {{ partner.mobileNumber }}</p>
+        <p><strong>Address:</strong> {{ partner.contactAddress }}</p>
+        <p><strong>Terms:</strong> {{ partner.termsAndConditions }}</p>
       </article>
     </div>
   </footer>

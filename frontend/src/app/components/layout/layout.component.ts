@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { TenantService } from '../../services/tenant.service';
@@ -15,17 +14,18 @@ import { TenantService } from '../../services/tenant.service';
 })
 export class LayoutComponent implements OnInit {
   constructor(
+    private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly tenantService: TenantService,
     protected readonly authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => this.syncTenantFromUrl());
-
-    this.syncTenantFromUrl();
+    this.route.queryParamMap.subscribe((params) => {
+      const company = params.get('company');
+      this.tenantService.setFromCompanyCode(company);
+      this.applyTenantBranding();
+    });
   }
 
   get companyCode(): string | null {
@@ -36,9 +36,12 @@ export class LayoutComponent implements OnInit {
     return this.tenantService.getTenant()?.name ?? 'CardFlex';
   }
 
+  get activeTenant() {
+    return this.tenantService.getTenant();
+  }
+
   get footerPartners() {
-    const activeTenant = this.tenantService.getTenant();
-    return activeTenant ? [activeTenant] : this.tenantService.getAllPartners();
+    return this.activeTenant ? [this.activeTenant] : this.tenantService.getAllPartners();
   }
 
   logout(): void {
@@ -48,19 +51,17 @@ export class LayoutComponent implements OnInit {
     });
   }
 
-  private syncTenantFromUrl(): void {
-    const tree = this.router.parseUrl(this.router.url);
-    const company = tree.queryParams['company'] ?? null;
-    this.tenantService.setFromCompanyCode(company);
-
-    const tenant = this.tenantService.getTenant();
+  private applyTenantBranding(): void {
+    const tenant = this.activeTenant;
     if (!tenant) {
       document.title = 'CardFlex';
       document.documentElement.style.setProperty('--tenant-color', '#00539C');
+      document.documentElement.style.setProperty('--tenant-secondary-color', '#8FB4D8');
       return;
     }
 
     document.title = `${tenant.name} | CardFlex`;
-    document.documentElement.style.setProperty('--tenant-color', tenant.themeColor);
+    document.documentElement.style.setProperty('--tenant-color', tenant.primaryColor);
+    document.documentElement.style.setProperty('--tenant-secondary-color', tenant.secondaryColor);
   }
 }
