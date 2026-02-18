@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/layout/layout.component.css"],
+  "sourcesContent": [".app-shell {\n  min-height: 100vh;\n  display: grid;\n  grid-template-rows: auto 1fr auto;\n}\n\n.app-header {\n  background: var(--tenant-color);\n  color: #ffffff;\n  padding: 14px 24px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n.brand {\n  font-size: 1.15rem;\n  font-weight: 700;\n}\n\n.links {\n  display: flex;\n  gap: 12px;\n  align-items: center;\n}\n\n.links a,\n.links button {\n  color: #ffffff;\n  text-decoration: none;\n  border: 1px solid rgba(255, 255, 255, 0.5);\n  background: transparent;\n  padding: 6px 10px;\n  border-radius: 8px;\n  font-size: 0.9rem;\n}\n\n.app-main {\n  width: min(980px, 92vw);\n  margin: 28px auto;\n}\n\n.app-footer {\n  background: #111827;\n  color: #f9fafb;\n  text-align: center;\n  padding: 12px;\n}\n"],
+  "mappings": ";AAAA,CAAC;AACC,cAAY;AACZ,WAAS;AACT,sBAAoB,KAAK,IAAI;AAC/B;AAEA,CAAC;AACC,cAAY,IAAI;AAChB,SAAO;AACP,WAAS,KAAK;AACd,WAAS;AACT,mBAAiB;AACjB,eAAa;AACf;AAEA,CAAC;AACC,aAAW;AACX,eAAa;AACf;AAEA,CAAC;AACC,WAAS;AACT,OAAK;AACL,eAAa;AACf;AAEA,CANC,MAMM;AACP,CAPC,MAOM;AACL,SAAO;AACP,mBAAiB;AACjB,UAAQ,IAAI,MAAM,KAAK,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE;AACtC,cAAY;AACZ,WAAS,IAAI;AACb,iBAAe;AACf,aAAW;AACb;AAEA,CAAC;AACC,SAAO,IAAI,KAAK,EAAE;AAClB,UAAQ,KAAK;AACf;AAEA,CAAC;AACC,cAAY;AACZ,SAAO;AACP,cAAY;AACZ,WAAS;AACX;",
+  "names": []
+}

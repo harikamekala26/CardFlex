@@ -1,0 +1,10 @@
+<section class="card">
+  <h1>Welcome to CardFlex</h1>
+  <p>Tenant company detected from URL: <strong>{{ companyCode || 'Not set' }}</strong></p>
+  <p>Use the links below to register or log in.</p>
+
+  <div class="actions">
+    <a [routerLink]="['/register']" [queryParams]="{ company: companyCode ?? undefined }">Register</a>
+    <a [routerLink]="['/login']" [queryParams]="{ company: companyCode ?? undefined }">Login</a>
+  </div>
+</section>

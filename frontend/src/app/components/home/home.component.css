@@ -1,0 +1,21 @@
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+}
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.actions a {
+  display: inline-block;
+  text-decoration: none;
+  color: #ffffff;
+  background: var(--tenant-color);
+  padding: 10px 16px;
+  border-radius: 8px;
+}
