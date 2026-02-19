@@ -13,8 +13,8 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${environment.apiBaseUrl}/register?company=${companyCode}`, payload);
   }
 
-  login(payload: { email: string; password: string }, companyCode: string): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(`${environment.apiBaseUrl}/login?company=${companyCode}`, payload);
+  login(payload: { email: string; password: string }, companyCode: string): Observable<{ token?: string; message?: string }> {
+    return this.http.post<{ token?: string; message?: string }>(`${environment.apiBaseUrl}/login?company=${companyCode}`, payload);
   }
 
   getDashboard(companyCode: string): Observable<DashboardData> {

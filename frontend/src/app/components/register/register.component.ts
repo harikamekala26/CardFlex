@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { TenantService } from '../../services/tenant.service';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 @Component({
   selector: 'app-register',
@@ -22,12 +23,11 @@ export class RegisterComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
-    private readonly tenantService: TenantService,
-    private readonly router: Router
+    private readonly tenantService: TenantService
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(EMAIL_PATTERN)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
@@ -38,6 +38,7 @@ export class RegisterComponent {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.errorMessage = 'Enter a valid name, email, and password (minimum 6 characters).';
       return;
     }
 
@@ -49,10 +50,10 @@ export class RegisterComponent {
 
     this.submitting = true;
     this.authService.register(this.form.getRawValue() as { name: string; email: string; password: string }, company).subscribe({
-      next: () => {
+      next: (response) => {
         this.submitting = false;
-        this.successMessage = 'Registration successful. Please log in.';
-        this.router.navigate(['/login'], { queryParams: { company } });
+        this.successMessage = response.message || 'User registered';
+        this.form.reset();
       },
       error: (err) => {
         this.submitting = false;

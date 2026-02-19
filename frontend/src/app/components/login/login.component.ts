@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { TenantService } from '../../services/tenant.service';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 @Component({
   selector: 'app-login',
@@ -16,25 +17,27 @@ import { TenantService } from '../../services/tenant.service';
 export class LoginComponent {
   submitting = false;
   errorMessage = '';
+  successMessage = '';
   readonly form;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
-    private readonly tenantService: TenantService,
-    private readonly router: Router
+    private readonly tenantService: TenantService
   ) {
     this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      email: ['', [Validators.required, Validators.email, Validators.pattern(EMAIL_PATTERN)]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
   onSubmit(): void {
     this.errorMessage = '';
+    this.successMessage = '';
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.errorMessage = 'Enter a valid email and a password with at least 6 characters.';
       return;
     }
 
@@ -46,10 +49,13 @@ export class LoginComponent {
 
     this.submitting = true;
     this.authService.login(this.form.getRawValue() as { email: string; password: string }, company).subscribe({
-      next: ({ token }) => {
+      next: ({ token, message }) => {
         this.submitting = false;
-        this.authService.setToken(token);
-        this.router.navigate(['/dashboard'], { queryParams: { company } });
+        if (token) {
+          this.authService.setToken(token);
+        }
+        this.successMessage = message || 'user logged in';
+        this.form.reset();
       },
       error: (err) => {
         this.submitting = false;
