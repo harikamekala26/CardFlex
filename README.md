@@ -67,8 +67,20 @@ Frontend runs on `http://localhost:4200`.
 ```text
 http://localhost:4200/?company=chase-bank
 http://localhost:4200/?company=capital-one
-http://localhost:4200/?company=citibank
+http://localhost:4200/?company=wells-fargo
 ```
+
+### Registration Behavior (Current Demo)
+
+- `POST /register?company=<company-code>` returns a dummy success response.
+- Frontend Register page shows the backend success message: `user registered`.
+- User is persisted per tenant with a hashed password.
+
+### Login Behavior (Current Demo)
+
+- `POST /login?company=<company-code>` validates against the registered user for that tenant.
+- Frontend Login page shows the backend success message: `user logged in`.
+- Wrong password returns `401 invalid credentials`.
 
 ### Team: Resolvers
 

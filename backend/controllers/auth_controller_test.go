@@ -16,8 +16,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestRegisterInsertsUserForTenant(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+func TestRegisterReturnsDummyResponseForTenant(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file:register_test?mode=memory&cache=shared"), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("failed to open sqlite database: %v", err)
 	}
@@ -53,41 +53,212 @@ func TestRegisterInsertsUserForTenant(t *testing.T) {
 	res := httptest.NewRecorder()
 	r.ServeHTTP(res, req)
 
-	if res.Code != http.StatusCreated {
-		t.Fatalf("expected status %d, got %d, body: %s", http.StatusCreated, res.Code, res.Body.String())
+	if res.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusOK, res.Code, res.Body.String())
 	}
 
 	var registerResponse struct {
 		Message string `json:"message"`
-		UserID  uint   `json:"userId"`
+		Dummy   struct {
+			Name        string `json:"name"`
+			Email       string `json:"email"`
+			UserID      uint   `json:"userId"`
+			TenantID    uint   `json:"tenantId"`
+			CompanyCode string `json:"companyCode"`
+		} `json:"dummy"`
 	}
 	if err := json.Unmarshal(res.Body.Bytes(), &registerResponse); err != nil {
 		t.Fatalf("failed to parse register response: %v", err)
 	}
 
-	if registerResponse.Message != "user registered successfully" {
+	if registerResponse.Message != "user registered" {
 		t.Fatalf("unexpected register message: %q", registerResponse.Message)
 	}
-	if registerResponse.UserID == 0 {
+	if registerResponse.Dummy.Name != "Alice" {
+		t.Fatalf("expected dummy name Alice, got %q", registerResponse.Dummy.Name)
+	}
+	if registerResponse.Dummy.Email != "alice@example.com" {
+		t.Fatalf("expected normalized email alice@example.com, got %q", registerResponse.Dummy.Email)
+	}
+	if registerResponse.Dummy.UserID == 0 {
 		t.Fatal("expected non-zero user id")
+	}
+	if registerResponse.Dummy.TenantID != tenant.ID {
+		t.Fatalf("expected tenant id %d, got %d", tenant.ID, registerResponse.Dummy.TenantID)
+	}
+	if registerResponse.Dummy.CompanyCode != "acme" {
+		t.Fatalf("expected company code acme, got %q", registerResponse.Dummy.CompanyCode)
 	}
 
 	var inserted models.User
-	err = db.Where("tenant_id = ? AND email = ?", tenant.ID, "alice@example.com").First(&inserted).Error
-	if err != nil {
-		t.Fatalf("expected inserted user, find failed: %v", err)
-	}
-
-	if inserted.Name != "Alice" {
-		t.Fatalf("expected name Alice, got %q", inserted.Name)
-	}
-	if inserted.TenantID != tenant.ID {
-		t.Fatalf("expected tenant id %d, got %d", tenant.ID, inserted.TenantID)
+	if err := db.Where("tenant_id = ? AND email = ?", tenant.ID, "alice@example.com").First(&inserted).Error; err != nil {
+		t.Fatalf("expected inserted user, got error: %v", err)
 	}
 	if inserted.Password == "secret123" {
-		t.Fatal("expected password to be hashed, but plain text was stored")
+		t.Fatal("expected stored password to be hashed")
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(inserted.Password), []byte("secret123")); err != nil {
-		t.Fatalf("stored password is not a valid hash for original password: %v", err)
+		t.Fatalf("stored hash does not match original password: %v", err)
+	}
+}
+
+func TestLoginReturnsDummyResponseForTenant(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file:login_test?mode=memory&cache=shared"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("failed to open sqlite database: %v", err)
+	}
+
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+		t.Fatalf("failed to migrate schema: %v", err)
+	}
+
+	tenant := models.Tenant{
+		Name:        "Acme Card",
+		CompanyCode: "acme",
+		ThemeColor:  "#0B6E4F",
+	}
+	if err := db.Create(&tenant).Error; err != nil {
+		t.Fatalf("failed to seed tenant: %v", err)
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("secret123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatalf("failed to hash password: %v", err)
+	}
+
+	user := models.User{
+		Name:     "Alice",
+		Email:    "alice@example.com",
+		Password: string(hashedPassword),
+		TenantID: tenant.ID,
+	}
+	if err := db.Create(&user).Error; err != nil {
+		t.Fatalf("failed to seed user: %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	authController := &controllers.AuthController{
+		DB:        db,
+		JWTSecret: "test-secret",
+	}
+
+	tenantAware := r.Group("/")
+	tenantAware.Use(middleware.TenantResolver(db))
+	tenantAware.POST("/login", authController.Login)
+
+	body := `{"email":"alice@example.com","password":"secret123"}`
+	req := httptest.NewRequest(http.MethodPost, "/login?company=acme", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	if res.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusOK, res.Code, res.Body.String())
+	}
+
+	var loginResponse struct {
+		Message string `json:"message"`
+		Dummy   struct {
+			UserID      uint   `json:"userId"`
+			Email       string `json:"email"`
+			TenantID    uint   `json:"tenantId"`
+			CompanyCode string `json:"companyCode"`
+		} `json:"dummy"`
+	}
+	if err := json.Unmarshal(res.Body.Bytes(), &loginResponse); err != nil {
+		t.Fatalf("failed to parse login response: %v", err)
+	}
+
+	if loginResponse.Message != "user logged in" {
+		t.Fatalf("unexpected login message: %q", loginResponse.Message)
+	}
+	if loginResponse.Dummy.Email != "alice@example.com" {
+		t.Fatalf("expected normalized email alice@example.com, got %q", loginResponse.Dummy.Email)
+	}
+	if loginResponse.Dummy.UserID != user.ID {
+		t.Fatalf("expected user id %d, got %d", user.ID, loginResponse.Dummy.UserID)
+	}
+	if loginResponse.Dummy.TenantID != tenant.ID {
+		t.Fatalf("expected tenant id %d, got %d", tenant.ID, loginResponse.Dummy.TenantID)
+	}
+	if loginResponse.Dummy.CompanyCode != "acme" {
+		t.Fatalf("expected company code acme, got %q", loginResponse.Dummy.CompanyCode)
+	}
+}
+
+func TestLoginValidationRejectsInvalidInputs(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file:login_validation_test?mode=memory&cache=shared"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("failed to open sqlite database: %v", err)
+	}
+
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+		t.Fatalf("failed to migrate schema: %v", err)
+	}
+
+	tenant := models.Tenant{
+		Name:        "Acme Card",
+		CompanyCode: "acme",
+		ThemeColor:  "#0B6E4F",
+	}
+	if err := db.Create(&tenant).Error; err != nil {
+		t.Fatalf("failed to seed tenant: %v", err)
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("secret123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatalf("failed to hash password: %v", err)
+	}
+
+	if err := db.Create(&models.User{
+		Name:     "Alice",
+		Email:    "alice@example.com",
+		Password: string(hashedPassword),
+		TenantID: tenant.ID,
+	}).Error; err != nil {
+		t.Fatalf("failed to seed user: %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	authController := &controllers.AuthController{
+		DB:        db,
+		JWTSecret: "test-secret",
+	}
+
+	tenantAware := r.Group("/")
+	tenantAware.Use(middleware.TenantResolver(db))
+	tenantAware.POST("/login", authController.Login)
+
+	invalidEmailBody := `{"email":"alice@localhost","password":"secret123"}`
+	invalidEmailReq := httptest.NewRequest(http.MethodPost, "/login?company=acme", strings.NewReader(invalidEmailBody))
+	invalidEmailReq.Header.Set("Content-Type", "application/json")
+	invalidEmailRes := httptest.NewRecorder()
+	r.ServeHTTP(invalidEmailRes, invalidEmailReq)
+
+	if invalidEmailRes.Code != http.StatusBadRequest {
+		t.Fatalf("expected status %d for invalid email, got %d, body: %s", http.StatusBadRequest, invalidEmailRes.Code, invalidEmailRes.Body.String())
+	}
+
+	shortPasswordBody := `{"email":"alice@example.com","password":"123"}`
+	shortPasswordReq := httptest.NewRequest(http.MethodPost, "/login?company=acme", strings.NewReader(shortPasswordBody))
+	shortPasswordReq.Header.Set("Content-Type", "application/json")
+	shortPasswordRes := httptest.NewRecorder()
+	r.ServeHTTP(shortPasswordRes, shortPasswordReq)
+
+	if shortPasswordRes.Code != http.StatusBadRequest {
+		t.Fatalf("expected status %d for short password, got %d, body: %s", http.StatusBadRequest, shortPasswordRes.Code, shortPasswordRes.Body.String())
+	}
+
+	wrongPasswordBody := `{"email":"alice@example.com","password":"wrongpass"}`
+	wrongPasswordReq := httptest.NewRequest(http.MethodPost, "/login?company=acme", strings.NewReader(wrongPasswordBody))
+	wrongPasswordReq.Header.Set("Content-Type", "application/json")
+	wrongPasswordRes := httptest.NewRecorder()
+	r.ServeHTTP(wrongPasswordRes, wrongPasswordReq)
+
+	if wrongPasswordRes.Code != http.StatusUnauthorized {
+		t.Fatalf("expected status %d for wrong password, got %d, body: %s", http.StatusUnauthorized, wrongPasswordRes.Code, wrongPasswordRes.Body.String())
 	}
 }
