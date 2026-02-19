@@ -1,10 +1,8 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type Tenant struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name        string             `bson:"name" json:"name"`
-	CompanyCode string             `bson:"companyCode" json:"companyCode"`
-	ThemeColor  string             `bson:"themeColor,omitempty" json:"themeColor,omitempty"`
+	ID          uint   `gorm:"primaryKey" json:"id"`
+	Name        string `gorm:"not null" json:"name"`
+	CompanyCode string `gorm:"not null;uniqueIndex" json:"companyCode"`
+	ThemeColor  string `json:"themeColor,omitempty"`
 }

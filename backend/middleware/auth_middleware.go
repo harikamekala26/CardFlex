@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"cardflex-backend/models"
@@ -34,7 +35,7 @@ func JWTAuth(secret string) gin.HandlerFunc {
 		}
 
 		tenant := tenantRaw.(models.Tenant)
-		if claims.TenantID != tenant.ID.Hex() {
+		if claims.TenantID != strconv.FormatUint(uint64(tenant.ID), 10) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "token tenant mismatch"})
 			c.Abort()
 			return

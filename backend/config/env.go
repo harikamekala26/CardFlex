@@ -9,8 +9,8 @@ import (
 
 type Env struct {
 	Port      string
-	MongoURI  string
-	MongoDB   string
+	DBDriver  string
+	DBDSN     string
 	JWTSecret string
 }
 
@@ -19,13 +19,13 @@ func LoadEnv() Env {
 
 	env := Env{
 		Port:      getEnv("PORT", "8080"),
-		MongoURI:  os.Getenv("MONGO_URI"),
-		MongoDB:   getEnv("MONGO_DB", "cardflex"),
+		DBDriver:  getEnv("DB_DRIVER", "sqlite"),
+		DBDSN:     getEnv("DB_DSN", "cardflex.db"),
 		JWTSecret: os.Getenv("JWT_SECRET"),
 	}
 
-	if env.MongoURI == "" {
-		log.Fatal("MONGO_URI is required")
+	if env.DBDSN == "" {
+		log.Fatal("DB_DSN is required")
 	}
 
 	if env.JWTSecret == "" {

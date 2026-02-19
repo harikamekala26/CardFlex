@@ -1,17 +1,14 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
-	"time"
 
 	"cardflex-backend/models"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
 )
 
-func TenantResolver(tenantCollection *mongo.Collection) gin.HandlerFunc {
+func TenantResolver(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		company := c.Query("company")
 		if company == "" {
@@ -20,13 +17,10 @@ func TenantResolver(tenantCollection *mongo.Collection) gin.HandlerFunc {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
 		var tenant models.Tenant
-		err := tenantCollection.FindOne(ctx, bson.M{"companyCode": company}).Decode(&tenant)
+		err := db.Where("company_code = ?", company).First(&tenant).Error
 		if err != nil {
-			if err == mongo.ErrNoDocuments {
+			if err == gorm.ErrRecordNotFound {
 				c.JSON(http.StatusNotFound, gin.H{"error": "tenant not found"})
 				c.Abort()
 				return

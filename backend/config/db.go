@@ -1,31 +1,35 @@
 package config
 
 import (
-	"context"
+	"fmt"
 	"log"
-	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type DB struct {
-	Client *mongo.Client
-	Name   string
+	Client *gorm.DB
 }
 
-func ConnectMongo(env Env) *DB {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func ConnectSQL(env Env) *DB {
+	if env.DBDriver != "sqlite" {
+		log.Fatalf("unsupported DB_DRIVER %q (supported: sqlite)", env.DBDriver)
+	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(env.MongoURI))
+	client, err := gorm.Open(sqlite.Open(env.DBDSN), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("failed to connect to mongodb: %v", err)
+		log.Fatalf("failed to connect to sql database: %v", err)
 	}
 
-	if err := client.Ping(ctx, nil); err != nil {
-		log.Fatalf("failed to ping mongodb: %v", err)
+	sqlDB, err := client.DB()
+	if err != nil {
+		log.Fatalf("failed to obtain sql handle: %v", err)
+	}
+	if err := sqlDB.Ping(); err != nil {
+		log.Fatalf("failed to ping sql database: %v", err)
 	}
 
-	return &DB{Client: client, Name: env.MongoDB}
+	log.Printf("connected to %s database (%s)", env.DBDriver, fmt.Sprintf("dsn=%s", env.DBDSN))
+	return &DB{Client: client}
 }

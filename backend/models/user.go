@@ -1,11 +1,9 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name     string             `bson:"name" json:"name"`
-	Email    string             `bson:"email" json:"email"`
-	Password string             `bson:"password" json:"-"`
-	TenantID primitive.ObjectID `bson:"tenantId" json:"tenantId"`
+	ID       uint   `gorm:"primaryKey" json:"id"`
+	Name     string `gorm:"not null" json:"name"`
+	Email    string `gorm:"not null;index:idx_tenant_email,unique" json:"email"`
+	Password string `gorm:"not null" json:"-"`
+	TenantID uint   `gorm:"not null;index:idx_tenant_email,unique" json:"tenantId"`
 }
