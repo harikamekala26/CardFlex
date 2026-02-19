@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"log"
-	"time"
 
 	"cardflex-backend/config"
 	"cardflex-backend/controllers"
@@ -11,18 +9,13 @@ import (
 	"cardflex-backend/routes"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
 )
 
 func main() {
 	env := config.LoadEnv()
-	db := config.ConnectMongo(env)
-
-	database := db.Client.Database(env.MongoDB)
-	tenantCollection := database.Collection("tenants")
-	userCollection := database.Collection("users")
-
-	if err := runMigrations(tenantCollection, userCollection); err != nil {
+	db := config.ConnectSQL(env)
+	if err := runMigrations(db.Client); err != nil {
 		log.Fatalf("failed to initialize database: %v", err)
 	}
 
@@ -34,10 +27,10 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	authController := &controllers.AuthController{Users: userCollection, JWTSecret: env.JWTSecret}
+	authController := &controllers.AuthController{DB: db.Client, JWTSecret: env.JWTSecret}
 	dashboardController := &controllers.DashboardController{}
 
-	routes.RegisterRoutes(r, tenantCollection, authController, dashboardController, env.JWTSecret)
+	routes.RegisterRoutes(r, db.Client, authController, dashboardController, env.JWTSecret)
 
 	log.Printf("CardFlex backend running on http://localhost:%s", env.Port)
 	if err := r.Run(":" + env.Port); err != nil {
@@ -45,13 +38,10 @@ func main() {
 	}
 }
 
-func runMigrations(tenantCollection, userCollection *mongo.Collection) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if err := migrations.MigrateTenants(ctx, tenantCollection); err != nil {
+func runMigrations(db *gorm.DB) error {
+	if err := migrations.MigrateTenants(db); err != nil {
 		return err
 	}
 
-	return migrations.MigrateUsers(ctx, userCollection)
+	return migrations.MigrateUsers(db)
 }

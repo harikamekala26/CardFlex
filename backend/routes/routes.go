@@ -5,12 +5,12 @@ import (
 	"cardflex-backend/middleware"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
 )
 
 func RegisterRoutes(
 	r *gin.Engine,
-	tenantCollection *mongo.Collection,
+	db *gorm.DB,
 	authController *controllers.AuthController,
 	dashboardController *controllers.DashboardController,
 	jwtSecret string,
@@ -20,7 +20,7 @@ func RegisterRoutes(
 	})
 
 	tenantAware := r.Group("/")
-	tenantAware.Use(middleware.TenantResolver(tenantCollection))
+	tenantAware.Use(middleware.TenantResolver(db))
 	{
 		tenantAware.POST("/register", authController.Register)
 		tenantAware.POST("/login", authController.Login)
@@ -28,7 +28,7 @@ func RegisterRoutes(
 
 	protected := r.Group("/")
 	protected.Use(
-		middleware.TenantResolver(tenantCollection),
+		middleware.TenantResolver(db),
 		middleware.JWTAuth(jwtSecret),
 	)
 	{

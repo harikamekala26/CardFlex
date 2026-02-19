@@ -1,21 +1,19 @@
 package controllers
 
 import (
-	"context"
 	"net/http"
+	"strconv"
 	"strings"
-	"time"
 
 	"cardflex-backend/models"
 	"cardflex-backend/utils"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type AuthController struct {
-	Users     *mongo.Collection
+	DB        *gorm.DB
 	JWTSecret string
 }
 
@@ -42,12 +40,10 @@ func (a *AuthController) Register(c *gin.Context) {
 
 	email := strings.ToLower(strings.TrimSpace(req.Email))
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	filter := bson.M{"tenantId": tenant.ID, "email": email}
-	count, err := a.Users.CountDocuments(ctx, filter)
-	if err != nil {
+	var count int64
+	if err := a.DB.Model(&models.User{}).
+		Where("tenant_id = ? AND email = ?", tenant.ID, email).
+		Count(&count).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to validate existing user"})
 		return
 	}
@@ -69,15 +65,14 @@ func (a *AuthController) Register(c *gin.Context) {
 		TenantID: tenant.ID,
 	}
 
-	result, err := a.Users.InsertOne(ctx, user)
-	if err != nil {
+	if err := a.DB.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "user registered successfully",
-		"userId":  result.InsertedID,
+		"userId":  user.ID,
 	})
 }
 
@@ -93,13 +88,10 @@ func (a *AuthController) Login(c *gin.Context) {
 
 	email := strings.ToLower(strings.TrimSpace(req.Email))
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	var user models.User
-	err := a.Users.FindOne(ctx, bson.M{"tenantId": tenant.ID, "email": email}).Decode(&user)
+	err := a.DB.Where("tenant_id = ? AND email = ?", tenant.ID, email).First(&user).Error
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			return
 		}
@@ -112,7 +104,11 @@ func (a *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateToken(user.ID.Hex(), tenant.ID.Hex(), a.JWTSecret)
+	token, err := utils.GenerateToken(
+		strconv.FormatUint(uint64(user.ID), 10),
+		strconv.FormatUint(uint64(tenant.ID), 10),
+		a.JWTSecret,
+	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create token"})
 		return

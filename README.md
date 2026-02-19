@@ -39,14 +39,14 @@ https://cardflex.com?company=citibank
 
 - Node.js and npm
 - Go (1.22+ recommended)
-- MongoDB Atlas/local MongoDB connection string
+- SQL database (SQLite is preconfigured)
 
 ### 1) Start Backend
 
 ```bash
 cd backend
 cp .env.example .env
-# Fill MONGO_URI, MONGO_DB, and JWT_SECRET in .env
+# Fill DB_DRIVER, DB_DSN, and JWT_SECRET in .env
 go run .
 ```
 
