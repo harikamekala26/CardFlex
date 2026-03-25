@@ -19,10 +19,11 @@ func RegisterRoutes(
 		c.String(200, "pong")
 	})
 
+	r.POST("/register", authController.Register)
+
 	tenantAware := r.Group("/")
 	tenantAware.Use(middleware.TenantResolver(db))
 	{
-		tenantAware.POST("/register", authController.Register)
 		tenantAware.POST("/login", authController.Login)
 	}
 

@@ -9,8 +9,14 @@ import { DashboardData } from '../models/dashboard.model';
 export class AuthService {
   constructor(private readonly http: HttpClient) {}
 
-  register(payload: { name: string; email: string; password: string }, companyCode: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${environment.apiBaseUrl}/register?company=${companyCode}`, payload);
+  register(
+    payload: { name: string; email: string; password: string },
+    companyCode: string
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiBaseUrl}/register`, {
+      ...payload,
+      tenantId: companyCode
+    });
   }
 
   login(payload: { email: string; password: string }, companyCode: string): Observable<{ token?: string; message?: string }> {
