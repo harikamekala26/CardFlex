@@ -1,19 +1,54 @@
-<section class="form-card">
-  <h2>Login</h2>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <label>
-      Email
-      <input formControlName="email" type="email" />
-    </label>
+<section class="login-shell">
+  <article class="login-info">
+    <p class="eyebrow">CardFlex Access</p>
+    <h2>Welcome back</h2>
+    <p class="description">
+      Sign in with your tenant email and password to access the dashboard and authenticated partner data.
+    </p>
 
-    <label>
-      Password
-      <input formControlName="password" type="password" />
-    </label>
+    <div class="tenant-chip" *ngIf="companyCode; else missingTenant">
+      Signing in for tenant <strong>{{ companyCode }}</strong>
+    </div>
+    <ng-template #missingTenant>
+      <div class="tenant-chip warning">Tenant company code is missing from the URL.</div>
+    </ng-template>
+  </article>
 
-    <button type="submit" [disabled]="submitting">{{ submitting ? 'Signing in...' : 'Sign In' }}</button>
-  </form>
+  <article class="form-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <label>
+        <span>Email</span>
+        <input
+          formControlName="email"
+          type="email"
+          placeholder="jane@company.com"
+          [class.input-error]="showFieldError(emailControl)"
+        />
+        <small class="field-error" *ngIf="showFieldError(emailControl)">{{ getFieldError('email') }}</small>
+      </label>
 
-  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
-  <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+      <label>
+        <span>Password</span>
+        <input
+          formControlName="password"
+          type="password"
+          placeholder="Enter your password"
+          [class.input-error]="showFieldError(passwordControl)"
+        />
+        <small class="field-error" *ngIf="showFieldError(passwordControl)">{{ getFieldError('password') }}</small>
+      </label>
+
+      <button type="submit" [disabled]="submitting">
+        {{ submitting ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+
+    <p class="register-prompt">
+      Need an account?
+      <a [routerLink]="['/register']" [queryParams]="{ company: companyCode ?? undefined }">Create one here</a>
+    </p>
+  </article>
 </section>
