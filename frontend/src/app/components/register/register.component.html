@@ -1,24 +1,66 @@
-<section class="form-card">
-  <h2>Register</h2>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <label>
-      Name
-      <input formControlName="name" type="text" />
-    </label>
+<section class="register-shell">
+  <article class="register-info">
+    <p class="eyebrow">CardFlex Access</p>
+    <h2>Create your account</h2>
+    <p class="description">
+      Register with your full name, work email, and a secure password to access your tenant workspace.
+    </p>
 
-    <label>
-      Email
-      <input formControlName="email" type="email" />
-    </label>
+    <div class="tenant-chip" *ngIf="companyCode; else missingTenant">
+      Registering for tenant <strong>{{ companyCode }}</strong>
+    </div>
+    <ng-template #missingTenant>
+      <div class="tenant-chip warning">Tenant company code is missing from the URL.</div>
+    </ng-template>
+  </article>
 
-    <label>
-      Password
-      <input formControlName="password" type="password" />
-    </label>
+  <article class="form-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <label>
+        <span>Name</span>
+        <input
+          formControlName="name"
+          type="text"
+          placeholder="Jane Doe"
+          [class.input-error]="showFieldError(nameControl)"
+        />
+        <small class="field-error" *ngIf="showFieldError(nameControl)">{{ getFieldError('name') }}</small>
+      </label>
 
-    <button type="submit" [disabled]="submitting">{{ submitting ? 'Creating...' : 'Create Account' }}</button>
-  </form>
+      <label>
+        <span>Email</span>
+        <input
+          formControlName="email"
+          type="email"
+          placeholder="jane@company.com"
+          [class.input-error]="showFieldError(emailControl)"
+        />
+        <small class="field-error" *ngIf="showFieldError(emailControl)">{{ getFieldError('email') }}</small>
+      </label>
 
-  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
-  <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+      <label>
+        <span>Password</span>
+        <input
+          formControlName="password"
+          type="password"
+          placeholder="At least 6 characters"
+          [class.input-error]="showFieldError(passwordControl)"
+        />
+        <small class="field-hint" *ngIf="!showFieldError(passwordControl)">Use at least 6 characters.</small>
+        <small class="field-error" *ngIf="showFieldError(passwordControl)">{{ getFieldError('password') }}</small>
+      </label>
+
+      <button type="submit" [disabled]="submitting">
+        {{ submitting ? 'Creating account...' : 'Create Account' }}
+      </button>
+    </form>
+
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+
+    <p class="login-prompt">
+      Already registered?
+      <a [routerLink]="['/login']" [queryParams]="{ company: companyCode ?? undefined }">Sign in here</a>
+    </p>
+  </article>
 </section>
