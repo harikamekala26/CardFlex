@@ -4,9 +4,11 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"cardflex-backend/models"
+	"cardflex-backend/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -157,13 +159,18 @@ func (a *AuthController) Login(c *gin.Context) {
 		return
 	}
 
+	token, err := utils.GenerateToken(
+		strconv.FormatUint(uint64(user.ID), 10),
+		strconv.FormatUint(uint64(user.TenantID), 10),
+		a.JWTSecret,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "user logged in",
-		"dummy": gin.H{
-			"email":       email,
-			"userId":      user.ID,
-			"tenantId":    user.TenantID,
-			"companyCode": tenant.CompanyCode,
-		},
+		"token":   token,
 	})
 }

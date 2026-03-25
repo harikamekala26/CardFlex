@@ -76,10 +76,12 @@ http://localhost:4200/?company=wells-fargo
 - Frontend Register page shows the backend success message: `user registered`.
 - User is persisted per tenant with a hashed password.
 
-### Login Behavior (Current Demo)
+### Login Behavior
 
 - `POST /login?company=<company-code>` validates against the registered user for that tenant.
 - Frontend Login page shows the backend success message: `user logged in`.
+- Successful login returns a JWT token.
+- The JWT includes the authenticated `userId` and `tenantId`.
 - Wrong password returns `401 invalid credentials`.
 
 ### Team: Resolvers
