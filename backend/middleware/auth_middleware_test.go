@@ -117,6 +117,27 @@ func TestJWTAuthRejectsTokenForDifferentTenant(t *testing.T) {
 	}
 }
 
+func TestJWTAuthRejectsMissingAuthorizationHeader(t *testing.T) {
+	db, _ := setupTenantDB(t)
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	protected := r.Group("/")
+	protected.Use(middleware.TenantResolver(db), middleware.JWTAuth("test-secret"))
+	protected.GET("/dashboard", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "authorized"})
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/dashboard?company=acme", nil)
+
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	if res.Code != http.StatusUnauthorized {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusUnauthorized, res.Code, res.Body.String())
+	}
+}
+
 func setupTenantDB(t *testing.T) (*gorm.DB, models.Tenant) {
 	t.Helper()
 

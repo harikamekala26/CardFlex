@@ -70,19 +70,137 @@ http://localhost:4200/?company=capital-one
 http://localhost:4200/?company=wells-fargo
 ```
 
-### Registration Behavior
+## Backend API Reference
 
-- `POST /register` accepts `name`, `email`, `password`, and `tenantId` (or `companyCode`) in the request body.
-- Frontend Register page shows the backend success message: `user registered`.
-- User is persisted per tenant with a hashed password.
+### Tenant Resolution
 
-### Login Behavior
+- `POST /register` resolves the tenant from `tenantId` or `companyCode` in the JSON body.
+- `POST /register` also supports the legacy `?company=<company-code>` query parameter as a fallback.
+- `POST /login` and `GET /dashboard` require `?company=<company-code>` in the URL.
 
-- `POST /login?company=<company-code>` validates against the registered user for that tenant.
-- Frontend Login page shows the backend success message: `user logged in`.
-- Successful login returns a JWT token.
-- The JWT includes the authenticated `userId` and `tenantId`.
-- Wrong password returns `401 invalid credentials`.
+### Authentication
+
+- `POST /register` does not require a JWT.
+- `POST /login` does not require a JWT.
+- `GET /dashboard` requires both `?company=<company-code>` and an `Authorization: Bearer <jwt>` header.
+- Successful login returns a JWT containing `userId` and `tenantId` claims.
+- A JWT can only access data for the tenant it was issued for.
+
+### `POST /register`
+
+Creates a new user under a specific tenant.
+
+Request body:
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "tenantId": "acme"
+}
+```
+
+Request fields:
+
+- `name`: required string, minimum 1 non-space character after trimming
+- `email`: required valid email address
+- `password`: required string, minimum 6 characters
+- `tenantId`: optional string tenant/company code
+- `companyCode`: optional string alternative to `tenantId`
+
+Success response `200 OK`:
+
+```json
+{
+  "message": "user registered",
+  "dummy": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "userId": 3,
+    "tenantId": 1,
+    "companyCode": "acme"
+  }
+}
+```
+
+Common errors:
+
+- `400 Bad Request`: invalid JSON, invalid email, short password, or missing tenant identifier
+- `404 Not Found`: tenant not found
+- `409 Conflict`: email already exists for this tenant
+- `500 Internal Server Error`: password hashing or persistence failure
+
+### `POST /login?company=<company-code>`
+
+Authenticates a user for a tenant and returns a JWT.
+
+Example request:
+
+```json
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+Success response `200 OK`:
+
+```json
+{
+  "message": "user logged in",
+  "token": "<jwt>"
+}
+```
+
+Common errors:
+
+- `400 Bad Request`: invalid email or short password
+- `401 Unauthorized`: invalid credentials
+- `404 Not Found`: tenant not found
+
+### `GET /dashboard?company=<company-code>`
+
+Returns tenant-branded dashboard data for the authenticated user.
+
+Required header:
+
+```text
+Authorization: Bearer <jwt>
+```
+
+Success response `200 OK`:
+
+```json
+{
+  "tenant": {
+    "name": "Acme Card",
+    "companyCode": "acme",
+    "themeColor": "#0B6E4F"
+  },
+  "card": {
+    "maskedCardNumber": "**** **** **** 4821",
+    "creditLimit": 12000,
+    "availableBalance": 8250,
+    "currency": "USD"
+  },
+  "transactions": [
+    {
+      "date": "2026-02-14",
+      "merchant": "Grocery Mart",
+      "amount": -82.41,
+      "status": "Posted"
+    }
+  ]
+}
+```
+
+Common errors:
+
+- `400 Bad Request`: missing `company` query parameter
+- `401 Unauthorized`: missing or invalid JWT
+- `403 Forbidden`: token tenant mismatch
+- `404 Not Found`: tenant not found
 
 ### Team: Resolvers
 
