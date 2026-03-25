@@ -13,9 +13,10 @@
     </div>
     <nav class="links">
       <a [routerLink]="['/']" [queryParams]="{ company: companyCode ?? undefined }">Home</a>
-      <a [routerLink]="['/register']" [queryParams]="{ company: companyCode ?? undefined }">Register</a>
-      <a [routerLink]="['/login']" [queryParams]="{ company: companyCode ?? undefined }">Login</a>
-      <button type="button" (click)="logout()" *ngIf="authService.isAuthenticated()">Logout</button>
+      <a [routerLink]="['/register']" [queryParams]="{ company: companyCode ?? undefined }" *ngIf="!isAuthenticated">Register</a>
+      <a [routerLink]="['/login']" [queryParams]="{ company: companyCode ?? undefined }" *ngIf="!isAuthenticated">Login</a>
+      <a [routerLink]="['/dashboard']" [queryParams]="{ company: companyCode ?? undefined }" *ngIf="isAuthenticated">Dashboard</a>
+      <button type="button" (click)="logout()" *ngIf="isAuthenticated">Logout</button>
     </nav>
   </header>
 

@@ -53,6 +53,31 @@ h2 {
   color: #9a3412;
 }
 
+.info-points {
+  margin-top: 24px;
+  display: grid;
+  gap: 14px;
+}
+
+.info-points div {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(241, 245, 249, 0.9));
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.info-points strong {
+  font-size: 0.96rem;
+  color: #0f172a;
+}
+
+.info-points span {
+  color: #475569;
+  line-height: 1.55;
+}
+
 form {
   display: grid;
   gap: 16px;

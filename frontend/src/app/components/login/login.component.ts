@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
+import { LoginRequest } from '../../models/auth.model';
 import { TenantService } from '../../services/tenant.service';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -15,7 +16,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   submitting = false;
   errorMessage = '';
   successMessage = '';
@@ -43,6 +44,14 @@ export class LoginComponent {
 
   get companyCode(): string | null {
     return this.tenantService.getCompanyCode();
+  }
+
+  ngOnInit(): void {
+    if (this.authService.isAuthenticated(this.companyCode)) {
+      void this.router.navigate(['/dashboard'], {
+        queryParams: { company: this.companyCode ?? undefined }
+      });
+    }
   }
 
   showFieldError(control: AbstractControl | null): boolean {
@@ -88,7 +97,7 @@ export class LoginComponent {
     }
 
     this.submitting = true;
-    this.authService.login(this.form.getRawValue() as { email: string; password: string }, company).subscribe({
+    this.authService.login(this.form.getRawValue() as LoginRequest, company).subscribe({
       next: ({ token, message }) => {
         this.submitting = false;
         if (!token) {
@@ -96,7 +105,7 @@ export class LoginComponent {
           return;
         }
 
-        this.authService.setToken(token);
+        this.authService.setSession(company, token);
         this.successMessage = message || 'User logged in successfully.';
         this.form.reset();
         this.form.markAsPristine();
@@ -105,9 +114,9 @@ export class LoginComponent {
           queryParams: { company }
         });
       },
-      error: (err) => {
+      error: (err: Error) => {
         this.submitting = false;
-        this.errorMessage = err.error?.error ?? 'Login failed';
+        this.errorMessage = err.message || 'Login failed';
       }
     });
   }

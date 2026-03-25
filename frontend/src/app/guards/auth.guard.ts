@@ -8,12 +8,13 @@ export const authGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const tenantService = inject(TenantService);
+  const companyCode = route.queryParamMap.get('company') ?? tenantService.getCompanyCode();
 
-  if (authService.isAuthenticated()) {
+  if (authService.isAuthenticated(companyCode)) {
     return true;
   }
 
   return router.createUrlTree(['/login'], {
-    queryParams: { company: route.queryParamMap.get('company') ?? tenantService.getCompanyCode() ?? undefined }
+    queryParams: { company: companyCode ?? undefined }
   });
 };

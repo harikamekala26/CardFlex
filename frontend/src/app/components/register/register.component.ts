@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
+import { RegisterRequest } from '../../models/auth.model';
 import { TenantService } from '../../services/tenant.service';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -24,7 +25,8 @@ export class RegisterComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
-    private readonly tenantService: TenantService
+    private readonly tenantService: TenantService,
+    private readonly router: Router
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -96,17 +98,22 @@ export class RegisterComponent {
     }
 
     this.submitting = true;
-    this.authService.register(this.form.getRawValue() as { name: string; email: string; password: string }, company).subscribe({
+    this.authService.register(this.form.getRawValue() as RegisterRequest, company).subscribe({
       next: (response) => {
         this.submitting = false;
         this.successMessage = response.message || 'User registered successfully. You can sign in now.';
         this.form.reset();
         this.form.markAsPristine();
         this.form.markAsUntouched();
+        window.setTimeout(() => {
+          void this.router.navigate(['/login'], {
+            queryParams: { company: company ?? undefined }
+          });
+        }, 900);
       },
-      error: (err) => {
+      error: (err: Error) => {
         this.submitting = false;
-        this.errorMessage = err.error?.error ?? 'Registration failed';
+        this.errorMessage = err.message || 'Registration failed';
       }
     });
   }
