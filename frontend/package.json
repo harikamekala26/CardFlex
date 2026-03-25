@@ -6,7 +6,9 @@
     "ng": "node ./node_modules/@angular/cli/bin/ng.js",
     "start": "node ./node_modules/@angular/cli/bin/ng.js serve",
     "build": "node ./node_modules/@angular/cli/bin/ng.js build",
-    "test": "node ./node_modules/@angular/cli/bin/ng.js test"
+    "test": "node ./node_modules/@angular/cli/bin/ng.js test --watch=false --browsers=ChromeHeadless",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@angular/animations": "^18.2.0",
@@ -25,6 +27,14 @@
     "@angular-devkit/build-angular": "^18.2.0",
     "@angular/cli": "^18.2.0",
     "@angular/compiler-cli": "^18.2.0",
+    "@types/jasmine": "^5.1.4",
+    "cypress": "^13.17.0",
+    "jasmine-core": "^5.2.0",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.1",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.1.0",
     "typescript": "~5.5.2"
   }
 }
