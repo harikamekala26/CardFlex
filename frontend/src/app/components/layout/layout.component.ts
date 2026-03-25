@@ -48,8 +48,12 @@ export class LayoutComponent implements OnInit {
     return this.activeTenant ? [this.activeTenant] : this.tenantService.getAllPartners();
   }
 
+  get isAuthenticated(): boolean {
+    return this.authService.isAuthenticated(this.companyCode);
+  }
+
   logout(): void {
-    this.authService.logout();
+    this.authService.logout(this.companyCode);
     this.router.navigate(['/login'], {
       queryParams: { company: this.companyCode ?? undefined }
     });

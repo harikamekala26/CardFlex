@@ -1,34 +1,107 @@
-<section class="dashboard" *ngIf="data; else loadingOrError">
-  <h2>{{ data.tenant.name }} Dashboard</h2>
+<section class="dashboard-shell" *ngIf="data; else loadingOrError">
+  <div class="dashboard-hero">
+    <div>
+      <p class="eyebrow">Authenticated Workspace</p>
+      <h2>{{ data.tenant.name }} Dashboard</h2>
+      <p class="hero-copy">
+        View account availability, credit utilization, and recent transaction activity for
+        <strong>{{ data.tenant.companyCode }}</strong>.
+      </p>
+    </div>
 
-  <div class="card-block">
-    <p><strong>Card Number:</strong> {{ data.card.maskedCardNumber }}</p>
-    <p><strong>Credit Limit:</strong> {{ data.card.creditLimit | currency:data.card.currency }}</p>
-    <p><strong>Available Balance:</strong> {{ data.card.availableBalance | currency:data.card.currency }}</p>
+    <div class="credit-card-panel">
+      <div class="credit-card-face">
+        <span class="network">CardFlex</span>
+        <span class="masked-number">{{ data.card.maskedCardNumber }}</span>
+        <div class="card-meta">
+          <div>
+            <small>Available</small>
+            <strong>{{ data.card.availableBalance | currency:data.card.currency }}</strong>
+          </div>
+          <div>
+            <small>Utilization</small>
+            <strong>{{ utilizationPercent }}%</strong>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <h3>Recent Transactions</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Merchant</th>
-        <th>Amount</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let tx of data.transactions">
-        <td>{{ tx.date | date:'mediumDate' }}</td>
-        <td>{{ tx.merchant }}</td>
-        <td>{{ tx.amount | currency:data.card.currency }}</td>
-        <td>{{ tx.status }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="metrics-grid">
+    <article class="metric-card">
+      <span>Total Limit</span>
+      <strong>{{ data.card.creditLimit | currency:data.card.currency }}</strong>
+      <p>Maximum approved spending power for this credit line.</p>
+    </article>
+
+    <article class="metric-card">
+      <span>Available Balance</span>
+      <strong>{{ data.card.availableBalance | currency:data.card.currency }}</strong>
+      <p>Current funds still available for purchases and payments.</p>
+    </article>
+
+    <article class="metric-card accent">
+      <span>Used Credit</span>
+      <strong>{{ paymentUsed | currency:data.card.currency }}</strong>
+      <p>Live balance currently consuming the credit limit.</p>
+    </article>
+  </div>
+
+  <section class="transactions-panel">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Activity Feed</p>
+        <h3>Recent Transactions</h3>
+      </div>
+
+      <button type="button" class="ghost-button" (click)="reload()">Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Merchant</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tx of data.transactions; trackBy: trackTransaction">
+            <td>{{ tx.date | date:'mediumDate' }}</td>
+            <td>{{ tx.merchant }}</td>
+            <td [class.debit]="tx.amount < 0" [class.credit]="tx.amount >= 0">
+              {{ tx.amount | currency:data.card.currency }}
+            </td>
+            <td>
+              <span class="status-pill">{{ tx.status }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>
 
 <ng-template #loadingOrError>
-  <p *ngIf="!errorMessage">Loading dashboard...</p>
-  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <section class="dashboard-state" *ngIf="loading">
+    <div class="state-card shimmer-card">
+      <p class="eyebrow">Loading</p>
+      <h3>Preparing your tenant dashboard</h3>
+      <p>We’re pulling the latest card summary and transaction activity now.</p>
+    </div>
+  </section>
+
+  <section class="dashboard-state" *ngIf="!loading && errorMessage">
+    <div class="state-card">
+      <p class="eyebrow">Dashboard Unavailable</p>
+      <h3>{{ errorMessage }}</h3>
+      <p>Check the tenant URL and make sure you are signed in for the correct issuer workspace.</p>
+      <div class="state-actions">
+        <button type="button" class="ghost-button" (click)="reload()">Try Again</button>
+        <a [routerLink]="['/login']" [queryParams]="{ company: companyCode ?? undefined }">Return to Login</a>
+      </div>
+    </div>
+  </section>
 </ng-template>
