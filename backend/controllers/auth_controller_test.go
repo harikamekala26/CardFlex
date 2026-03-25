@@ -42,12 +42,10 @@ func TestRegisterReturnsDummyResponseForTenant(t *testing.T) {
 		JWTSecret: "test-secret",
 	}
 
-	tenantAware := r.Group("/")
-	tenantAware.Use(middleware.TenantResolver(db))
-	tenantAware.POST("/register", authController.Register)
+	r.POST("/register", authController.Register)
 
-	body := `{"name":"Alice","email":"alice@example.com","password":"secret123"}`
-	req := httptest.NewRequest(http.MethodPost, "/register?company=acme", strings.NewReader(body))
+	body := `{"name":"Alice","email":"alice@example.com","password":"secret123","tenantId":"acme"}`
+	req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	res := httptest.NewRecorder()
@@ -99,6 +97,128 @@ func TestRegisterReturnsDummyResponseForTenant(t *testing.T) {
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(inserted.Password), []byte("secret123")); err != nil {
 		t.Fatalf("stored hash does not match original password: %v", err)
+	}
+}
+
+func TestRegisterSupportsCompanyQueryFallback(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file:register_query_fallback_test?mode=memory&cache=shared"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("failed to open sqlite database: %v", err)
+	}
+
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+		t.Fatalf("failed to migrate schema: %v", err)
+	}
+
+	tenant := models.Tenant{
+		Name:        "Acme Card",
+		CompanyCode: "acme",
+		ThemeColor:  "#0B6E4F",
+	}
+	if err := db.Create(&tenant).Error; err != nil {
+		t.Fatalf("failed to seed tenant: %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	authController := &controllers.AuthController{
+		DB:        db,
+		JWTSecret: "test-secret",
+	}
+	r.POST("/register", authController.Register)
+
+	body := `{"name":"Alice","email":"alice@example.com","password":"secret123"}`
+	req := httptest.NewRequest(http.MethodPost, "/register?company=acme", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	if res.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusOK, res.Code, res.Body.String())
+	}
+}
+
+func TestRegisterRejectsDuplicateEmailForTenant(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file:register_duplicate_test?mode=memory&cache=shared"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("failed to open sqlite database: %v", err)
+	}
+
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+		t.Fatalf("failed to migrate schema: %v", err)
+	}
+
+	tenant := models.Tenant{
+		Name:        "Acme Card",
+		CompanyCode: "acme",
+		ThemeColor:  "#0B6E4F",
+	}
+	if err := db.Create(&tenant).Error; err != nil {
+		t.Fatalf("failed to seed tenant: %v", err)
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("secret123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatalf("failed to hash password: %v", err)
+	}
+
+	if err := db.Create(&models.User{
+		Name:     "Existing User",
+		Email:    "alice@example.com",
+		Password: string(hashedPassword),
+		TenantID: tenant.ID,
+	}).Error; err != nil {
+		t.Fatalf("failed to seed user: %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	authController := &controllers.AuthController{
+		DB:        db,
+		JWTSecret: "test-secret",
+	}
+	r.POST("/register", authController.Register)
+
+	body := `{"name":"Alice","email":"alice@example.com","password":"secret123","tenantId":"acme"}`
+	req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	if res.Code != http.StatusConflict {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusConflict, res.Code, res.Body.String())
+	}
+}
+
+func TestRegisterRequiresTenantIdentifier(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file:register_missing_tenant_test?mode=memory&cache=shared"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("failed to open sqlite database: %v", err)
+	}
+
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+		t.Fatalf("failed to migrate schema: %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	authController := &controllers.AuthController{
+		DB:        db,
+		JWTSecret: "test-secret",
+	}
+	r.POST("/register", authController.Register)
+
+	body := `{"name":"Alice","email":"alice@example.com","password":"secret123"}`
+	req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	if res.Code != http.StatusBadRequest {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusBadRequest, res.Code, res.Body.String())
 	}
 }
 

@@ -70,9 +70,9 @@ http://localhost:4200/?company=capital-one
 http://localhost:4200/?company=wells-fargo
 ```
 
-### Registration Behavior (Current Demo)
+### Registration Behavior
 
-- `POST /register?company=<company-code>` returns a dummy success response.
+- `POST /register` accepts `name`, `email`, `password`, and `tenantId` (or `companyCode`) in the request body.
 - Frontend Register page shows the backend success message: `user registered`.
 - User is persisted per tenant with a hashed password.
 

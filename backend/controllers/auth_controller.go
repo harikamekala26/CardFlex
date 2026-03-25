@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
 	"regexp"
 	"strings"
@@ -17,9 +18,11 @@ type AuthController struct {
 }
 
 type registerRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
+	Name        string `json:"name" binding:"required"`
+	Email       string `json:"email" binding:"required,email"`
+	Password    string `json:"password" binding:"required,min=6"`
+	TenantID    string `json:"tenantId"`
+	CompanyCode string `json:"companyCode"`
 }
 
 type loginRequest struct {
@@ -30,12 +33,22 @@ type loginRequest struct {
 var strictEmailRegex = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]{2,}$`)
 
 func (a *AuthController) Register(c *gin.Context) {
-	tenantRaw, _ := c.Get("tenant")
-	tenant := tenantRaw.(models.Tenant)
-
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	tenant, err := a.resolveRegisterTenant(c, req)
+	if err != nil {
+		switch {
+		case errors.Is(err, gorm.ErrRecordNotFound):
+			c.JSON(http.StatusNotFound, gin.H{"error": "tenant not found"})
+		case err.Error() == "tenant identifier is required":
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to resolve tenant"})
+		}
 		return
 	}
 
@@ -85,6 +98,34 @@ func (a *AuthController) Register(c *gin.Context) {
 			"companyCode": tenant.CompanyCode,
 		},
 	})
+}
+
+func (a *AuthController) resolveRegisterTenant(c *gin.Context, req registerRequest) (models.Tenant, error) {
+	if tenantRaw, ok := c.Get("tenant"); ok {
+		tenant, ok := tenantRaw.(models.Tenant)
+		if ok {
+			return tenant, nil
+		}
+	}
+
+	tenantIdentifier := strings.TrimSpace(req.TenantID)
+	if tenantIdentifier == "" {
+		tenantIdentifier = strings.TrimSpace(req.CompanyCode)
+	}
+	if tenantIdentifier == "" {
+		tenantIdentifier = strings.TrimSpace(c.Query("company"))
+	}
+	if tenantIdentifier == "" {
+		return models.Tenant{}, errors.New("tenant identifier is required")
+	}
+
+	var tenant models.Tenant
+	err := a.DB.Where("company_code = ?", strings.ToLower(tenantIdentifier)).First(&tenant).Error
+	if err != nil {
+		return models.Tenant{}, err
+	}
+
+	return tenant, nil
 }
 
 func (a *AuthController) Login(c *gin.Context) {
