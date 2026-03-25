@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
 	"cardflex-backend/controllers"
 	"cardflex-backend/middleware"
 	"cardflex-backend/models"
+	"cardflex-backend/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
@@ -280,12 +282,7 @@ func TestLoginReturnsDummyResponseForTenant(t *testing.T) {
 
 	var loginResponse struct {
 		Message string `json:"message"`
-		Dummy   struct {
-			UserID      uint   `json:"userId"`
-			Email       string `json:"email"`
-			TenantID    uint   `json:"tenantId"`
-			CompanyCode string `json:"companyCode"`
-		} `json:"dummy"`
+		Token   string `json:"token"`
 	}
 	if err := json.Unmarshal(res.Body.Bytes(), &loginResponse); err != nil {
 		t.Fatalf("failed to parse login response: %v", err)
@@ -294,17 +291,20 @@ func TestLoginReturnsDummyResponseForTenant(t *testing.T) {
 	if loginResponse.Message != "user logged in" {
 		t.Fatalf("unexpected login message: %q", loginResponse.Message)
 	}
-	if loginResponse.Dummy.Email != "alice@example.com" {
-		t.Fatalf("expected normalized email alice@example.com, got %q", loginResponse.Dummy.Email)
+	if loginResponse.Token == "" {
+		t.Fatal("expected JWT token in login response")
 	}
-	if loginResponse.Dummy.UserID != user.ID {
-		t.Fatalf("expected user id %d, got %d", user.ID, loginResponse.Dummy.UserID)
+
+	claims, err := utils.ParseToken(loginResponse.Token, "test-secret")
+	if err != nil {
+		t.Fatalf("expected parsable JWT token, got error: %v", err)
 	}
-	if loginResponse.Dummy.TenantID != tenant.ID {
-		t.Fatalf("expected tenant id %d, got %d", tenant.ID, loginResponse.Dummy.TenantID)
+
+	if claims.UserID != strconv.FormatUint(uint64(user.ID), 10) {
+		t.Fatalf("expected user id claim %d, got %s", user.ID, claims.UserID)
 	}
-	if loginResponse.Dummy.CompanyCode != "acme" {
-		t.Fatalf("expected company code acme, got %q", loginResponse.Dummy.CompanyCode)
+	if claims.TenantID != strconv.FormatUint(uint64(tenant.ID), 10) {
+		t.Fatalf("expected tenant id claim %d, got %s", tenant.ID, claims.TenantID)
 	}
 }
 
