@@ -126,6 +126,131 @@ func TestGetDashboardReturnsTenantScopedData(t *testing.T) {
 	}
 }
 
+func TestGetDashboardReturnsEmptyTransactionsWhenNoTransactionsExist(t *testing.T) {
+	db, tenant, user, _ := setupControllerTenantDB(t)
+	res := performDashboardRequest(t, db, tenant, user, "test-secret")
+
+	if res.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusOK, res.Code, res.Body.String())
+	}
+
+	var response struct {
+		Transactions []struct {
+			Date string `json:"date"`
+		} `json:"transactions"`
+	}
+	if err := json.Unmarshal(res.Body.Bytes(), &response); err != nil {
+		t.Fatalf("failed to parse dashboard response: %v", err)
+	}
+
+	if len(response.Transactions) != 0 {
+		t.Fatalf("expected empty transactions array, got %d entries", len(response.Transactions))
+	}
+}
+
+func TestGetDashboardReturnsNotFoundWhenAccountMissing(t *testing.T) {
+	db, tenant, user, account := setupControllerTenantDB(t)
+	if err := db.Delete(&account).Error; err != nil {
+		t.Fatalf("failed to delete seeded account: %v", err)
+	}
+
+	res := performDashboardRequest(t, db, tenant, user, "test-secret")
+
+	if res.Code != http.StatusNotFound {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusNotFound, res.Code, res.Body.String())
+	}
+	if res.Body.String() != "{\"error\":\"account not found\"}" {
+		t.Fatalf("expected account not found body, got %s", res.Body.String())
+	}
+}
+
+func TestGetDashboardReturnsUnauthorizedWhenClaimsMissing(t *testing.T) {
+	db, tenant, _, _ := setupControllerTenantDB(t)
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	dashboardController := &controllers.DashboardController{DB: db}
+	r.GET("/dashboard", func(c *gin.Context) {
+		c.Set("tenant", tenant)
+		dashboardController.GetDashboard(c)
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	if res.Code != http.StatusUnauthorized {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusUnauthorized, res.Code, res.Body.String())
+	}
+	if res.Body.String() != "{\"error\":\"authentication claims missing\"}" {
+		t.Fatalf("expected missing claims body, got %s", res.Body.String())
+	}
+}
+
+func TestGetDashboardReturnsUnauthorizedWhenTenantMissing(t *testing.T) {
+	db, _, user, _ := setupControllerTenantDB(t)
+	token, err := utils.GenerateToken(
+		strconv.FormatUint(uint64(user.ID), 10),
+		"1",
+		"test-secret",
+	)
+	if err != nil {
+		t.Fatalf("failed to generate token: %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	dashboardController := &controllers.DashboardController{DB: db}
+	r.GET("/dashboard", func(c *gin.Context) {
+		claims, parseErr := utils.ParseToken(token, "test-secret")
+		if parseErr != nil {
+			t.Fatalf("failed to parse token: %v", parseErr)
+		}
+		c.Set("claims", claims)
+		dashboardController.GetDashboard(c)
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	if res.Code != http.StatusUnauthorized {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusUnauthorized, res.Code, res.Body.String())
+	}
+	if res.Body.String() != "{\"error\":\"tenant context missing\"}" {
+		t.Fatalf("expected missing tenant body, got %s", res.Body.String())
+	}
+}
+
+func performDashboardRequest(t *testing.T, db *gorm.DB, tenant models.Tenant, user models.User, secret string) *httptest.ResponseRecorder {
+	t.Helper()
+
+	token, err := utils.GenerateToken(
+		strconv.FormatUint(uint64(user.ID), 10),
+		strconv.FormatUint(uint64(tenant.ID), 10),
+		secret,
+	)
+	if err != nil {
+		t.Fatalf("failed to generate token: %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	dashboardController := &controllers.DashboardController{DB: db}
+
+	protected := r.Group("/")
+	protected.Use(middleware.TenantResolver(db), middleware.JWTAuth(secret))
+	protected.GET("/dashboard", dashboardController.GetDashboard)
+
+	req := httptest.NewRequest(http.MethodGet, "/dashboard?company=acme", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	return res
+}
+
 func setupControllerTenantDB(t *testing.T) (*gorm.DB, models.Tenant, models.User, models.Account) {
 	t.Helper()
 
