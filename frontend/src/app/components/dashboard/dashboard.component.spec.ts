@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import { DashboardComponent } from './dashboard.component';
 import { AuthService } from '../../services/auth.service';
@@ -76,6 +76,17 @@ describe('DashboardComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Account Summary');
     expect(fixture.nativeElement.textContent).toContain('Acme Card Dashboard');
     expect(fixture.nativeElement.textContent).toContain('**** **** **** 4821');
+    expect(fixture.nativeElement.textContent).toContain('Grocery Mart');
+  });
+
+  it('shows a loading state while the dashboard request is in flight', () => {
+    spyOn(authService, 'getDashboard').and.returnValue(new Observable());
+
+    fixture.detectChanges();
+
+    expect(component.loading).toBeTrue();
+    expect(component.data).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Preparing your tenant dashboard');
   });
 
   it('normalizes legacy card payloads so the current layout still works', () => {
@@ -92,6 +103,21 @@ describe('DashboardComponent', () => {
     expect(component.data?.accountSummary.creditLimit).toBe(12000);
     expect(component.data?.transactions.length).toBe(1);
     expect(fixture.nativeElement.textContent).toContain('Grocery Mart');
+  });
+
+  it('shows an empty state when the backend returns no transactions', () => {
+    spyOn(authService, 'getDashboard').and.returnValue(
+      of({
+        ...accountSummaryResponse,
+        transactions: []
+      })
+    );
+
+    fixture.detectChanges();
+
+    expect(component.hasTransactions).toBeFalse();
+    expect(fixture.nativeElement.textContent).toContain('No transactions available');
+    expect(fixture.nativeElement.textContent).not.toContain('Grocery Mart');
   });
 
   it('shows a missing-tenant error before calling the API', () => {
@@ -126,5 +152,7 @@ describe('DashboardComponent', () => {
     fixture.detectChanges();
 
     expect(component.errorMessage).toBe('account not found');
+    expect(fixture.nativeElement.textContent).toContain('Dashboard Unavailable');
+    expect(fixture.nativeElement.textContent).toContain('account not found');
   });
 });

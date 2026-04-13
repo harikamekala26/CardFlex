@@ -48,6 +48,10 @@ export class DashboardComponent implements OnInit {
     return Math.round((this.paymentUsed / this.data.accountSummary.creditLimit) * 100);
   }
 
+  get hasTransactions(): boolean {
+    return (this.data?.transactions.length ?? 0) > 0;
+  }
+
   trackTransaction(_: number, transaction: DashboardTransaction): string {
     return `${transaction.date}-${transaction.merchant}-${transaction.amount}`;
   }
