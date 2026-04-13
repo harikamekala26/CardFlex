@@ -15,8 +15,22 @@ type DashboardController struct {
 }
 
 func (d *DashboardController) GetDashboard(c *gin.Context) {
-	tenantRaw, _ := c.Get("tenant")
-	tenant := tenantRaw.(models.Tenant)
+	if d.DB == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "dashboard database is not configured"})
+		return
+	}
+
+	tenantRaw, ok := c.Get("tenant")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "tenant context missing"})
+		return
+	}
+
+	tenant, ok := tenantRaw.(models.Tenant)
+	if !ok || tenant.ID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid tenant context"})
+		return
+	}
 
 	claimsRaw, ok := c.Get("claims")
 	if !ok {
@@ -24,7 +38,12 @@ func (d *DashboardController) GetDashboard(c *gin.Context) {
 		return
 	}
 
-	claims := claimsRaw.(*utils.Claims)
+	claims, ok := claimsRaw.(*utils.Claims)
+	if !ok || claims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid authentication claims"})
+		return
+	}
+
 	userID, err := strconv.ParseUint(claims.UserID, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token user"})
