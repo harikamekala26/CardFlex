@@ -43,5 +43,9 @@ func runMigrations(db *gorm.DB) error {
 		return err
 	}
 
-	return migrations.MigrateUsers(db)
+	if err := migrations.MigrateUsers(db); err != nil {
+		return err
+	}
+
+	return migrations.MigrateAccounts(db)
 }
