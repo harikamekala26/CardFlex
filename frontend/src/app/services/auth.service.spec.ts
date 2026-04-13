@@ -56,6 +56,27 @@ describe('AuthService', () => {
     request.flush({ token: 'jwt-token', message: 'user logged in' });
   });
 
+  it('calls dashboard with the company query parameter', () => {
+    service.getDashboard('acme').subscribe();
+
+    const request = httpMock.expectOne(
+      (req) => req.url === `${environment.apiBaseUrl}/dashboard` && req.params.get('company') === 'acme'
+    );
+
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      tenant: { name: 'Acme Card', companyCode: 'acme', themeColor: '#0B6E4F' },
+      accountSummary: {
+        maskedCardNumber: '**** **** **** 4821',
+        creditLimit: 12000,
+        availableBalance: 8250,
+        currency: 'USD'
+      },
+      transactions: []
+    });
+  });
+
   it('stores and reads tenant-scoped sessions', () => {
     service.setSession('wells-fargo', 'tenant-token');
 

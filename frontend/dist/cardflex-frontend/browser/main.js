@@ -35775,29 +35775,79 @@ var environment = {
 // src/app/services/auth.service.ts
 var AuthService = class _AuthService {
   http;
+  storageKey = "cardflex_sessions";
+  apiBaseUrl = environment.apiBaseUrl.replace(/\/$/, "");
   constructor(http) {
     this.http = http;
   }
   register(payload, companyCode) {
-    return this.http.post(`${environment.apiBaseUrl}/register?company=${companyCode}`, payload);
+    return this.http.post(`${this.apiBaseUrl}/register`, __spreadProps(__spreadValues({}, payload), {
+      tenantId: companyCode
+    })).pipe(catchError((error) => this.handleApiError(error, "Registration failed. Please try again.")));
   }
   login(payload, companyCode) {
-    return this.http.post(`${environment.apiBaseUrl}/login?company=${companyCode}`, payload);
+    const params = new HttpParams().set("company", companyCode);
+    return this.http.post(`${this.apiBaseUrl}/login`, payload, { params }).pipe(catchError((error) => this.handleApiError(error, "Login failed. Please try again.")));
   }
   getDashboard(companyCode) {
-    return this.http.get(`${environment.apiBaseUrl}/dashboard?company=${companyCode}`);
+    const params = new HttpParams().set("company", companyCode);
+    return this.http.get(`${this.apiBaseUrl}/dashboard`, { params }).pipe(catchError((error) => this.handleApiError(error, "Unable to load dashboard data.")));
   }
-  setToken(token) {
-    localStorage.setItem("cardflex_token", token);
+  setSession(companyCode, token) {
+    const sessions = this.getStoredSessions();
+    sessions[companyCode] = token;
+    localStorage.setItem(this.storageKey, JSON.stringify(sessions));
   }
-  getToken() {
-    return localStorage.getItem("cardflex_token");
+  getToken(companyCode) {
+    if (!companyCode) {
+      return null;
+    }
+    return this.getStoredSessions()[companyCode] ?? null;
   }
-  logout() {
-    localStorage.removeItem("cardflex_token");
+  getSession(companyCode) {
+    const token = this.getToken(companyCode);
+    if (!companyCode || !token) {
+      return null;
+    }
+    return { companyCode, token };
   }
-  isAuthenticated() {
-    return !!this.getToken();
+  logout(companyCode) {
+    if (!companyCode) {
+      localStorage.removeItem(this.storageKey);
+      return;
+    }
+    const sessions = this.getStoredSessions();
+    delete sessions[companyCode];
+    localStorage.setItem(this.storageKey, JSON.stringify(sessions));
+  }
+  isAuthenticated(companyCode) {
+    return !!this.getToken(companyCode);
+  }
+  getStoredSessions() {
+    const raw = localStorage.getItem(this.storageKey);
+    if (!raw) {
+      return {};
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      return typeof parsed === "object" && parsed !== null ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+  handleApiError(error, fallbackMessage) {
+    if (error instanceof HttpErrorResponse) {
+      if (typeof error.error?.error === "string" && error.error.error.trim()) {
+        return throwError(() => new Error(error.error.error));
+      }
+      if (typeof error.error?.message === "string" && error.error.message.trim()) {
+        return throwError(() => new Error(error.error.message));
+      }
+      if (error.status === 0) {
+        return throwError(() => new Error("Backend is unreachable. Verify the API server and base URL."));
+      }
+    }
+    return throwError(() => new Error(fallbackMessage));
   }
   static \u0275fac = function AuthService_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _AuthService)(\u0275\u0275inject(HttpClient));
@@ -35810,25 +35860,62 @@ var _c0 = () => ["/"];
 var _c1 = (a0) => ({ company: a0 });
 var _c2 = () => ["/register"];
 var _c3 = () => ["/login"];
-function LayoutComponent_button_18_Template(rf, ctx) {
+var _c4 = () => ["/dashboard"];
+function LayoutComponent_a_14_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 18);
-    \u0275\u0275listener("click", function LayoutComponent_button_18_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.logout());
+    \u0275\u0275elementStart(0, "a", 11);
+    \u0275\u0275text(1, "Register");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c2))("queryParams", \u0275\u0275pureFunction1(3, _c1, (tmp_2_0 = ctx_r0.companyCode) !== null && tmp_2_0 !== void 0 ? tmp_2_0 : void 0));
+  }
+}
+function LayoutComponent_a_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "a", 11);
+    \u0275\u0275text(1, "Login");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c3))("queryParams", \u0275\u0275pureFunction1(3, _c1, (tmp_2_0 = ctx_r0.companyCode) !== null && tmp_2_0 !== void 0 ? tmp_2_0 : void 0));
+  }
+}
+function LayoutComponent_a_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "a", 11);
+    \u0275\u0275text(1, "Dashboard");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(2, _c4))("queryParams", \u0275\u0275pureFunction1(3, _c1, (tmp_2_0 = ctx_r0.companyCode) !== null && tmp_2_0 !== void 0 ? tmp_2_0 : void 0));
+  }
+}
+function LayoutComponent_button_17_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 19);
+    \u0275\u0275listener("click", function LayoutComponent_button_17_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.logout());
     });
     \u0275\u0275text(1, "Logout");
     \u0275\u0275elementEnd();
   }
 }
-function LayoutComponent_article_25_Template(rf, ctx) {
+function LayoutComponent_article_24_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "article", 19)(1, "h4");
+    \u0275\u0275elementStart(0, "article", 20)(1, "h4");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275element(3, "img", 20);
+    \u0275\u0275element(3, "img", 21);
     \u0275\u0275elementStart(4, "p")(5, "strong");
     \u0275\u0275text(6, "Mobile:");
     \u0275\u0275elementEnd();
@@ -35892,8 +35979,11 @@ var LayoutComponent = class _LayoutComponent {
   get footerPartners() {
     return this.activeTenant ? [this.activeTenant] : this.tenantService.getAllPartners();
   }
+  get isAuthenticated() {
+    return this.authService.isAuthenticated(this.companyCode);
+  }
   logout() {
-    this.authService.logout();
+    this.authService.logout(this.companyCode);
     this.router.navigate(["/login"], {
       queryParams: { company: this.companyCode ?? void 0 }
     });
@@ -35907,7 +35997,7 @@ var LayoutComponent = class _LayoutComponent {
   static \u0275fac = function LayoutComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _LayoutComponent)(\u0275\u0275directiveInject(ActivatedRoute), \u0275\u0275directiveInject(Router), \u0275\u0275directiveInject(TenantService), \u0275\u0275directiveInject(AuthService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LayoutComponent, selectors: [["app-layout"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 26, vars: 24, consts: [[1, "app-shell"], [1, "app-header"], [1, "brand-wrap"], [1, "brand-logo", 3, "src", "alt"], [1, "brand"], ["aria-hidden", "true", 1, "card-art"], [1, "card", "card-back"], [1, "card", "card-front"], [1, "chip"], [1, "card-dots"], [1, "links"], [3, "routerLink", "queryParams"], ["type", "button", 3, "click", 4, "ngIf"], [1, "app-main"], [1, "app-footer"], [1, "footer-title"], [1, "footer-grid"], ["class", "partner-card", 4, "ngFor", "ngForOf"], ["type", "button", 3, "click"], [1, "partner-card"], [1, "partner-image", 3, "src", "alt"]], template: function LayoutComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LayoutComponent, selectors: [["app-layout"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 25, vars: 17, consts: [[1, "app-shell"], [1, "app-header"], [1, "brand-wrap"], [1, "brand-logo", 3, "src", "alt"], [1, "brand"], ["aria-hidden", "true", 1, "card-art"], [1, "card", "card-back"], [1, "card", "card-front"], [1, "chip"], [1, "card-dots"], [1, "links"], [3, "routerLink", "queryParams"], [3, "routerLink", "queryParams", 4, "ngIf"], ["type", "button", 3, "click", 4, "ngIf"], [1, "app-main"], [1, "app-footer"], [1, "footer-title"], [1, "footer-grid"], ["class", "partner-card", 4, "ngFor", "ngForOf"], ["type", "button", 3, "click"], [1, "partner-card"], [1, "partner-image", 3, "src", "alt"]], template: function LayoutComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "div", 2);
       \u0275\u0275element(3, "img", 3);
@@ -35922,30 +36012,22 @@ var LayoutComponent = class _LayoutComponent {
       \u0275\u0275elementStart(11, "nav", 10)(12, "a", 11);
       \u0275\u0275text(13, "Home");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(14, "a", 11);
-      \u0275\u0275text(15, "Register");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(16, "a", 11);
-      \u0275\u0275text(17, "Login");
-      \u0275\u0275elementEnd();
-      \u0275\u0275template(18, LayoutComponent_button_18_Template, 2, 0, "button", 12);
+      \u0275\u0275template(14, LayoutComponent_a_14_Template, 2, 5, "a", 12)(15, LayoutComponent_a_15_Template, 2, 5, "a", 12)(16, LayoutComponent_a_16_Template, 2, 5, "a", 12)(17, LayoutComponent_button_17_Template, 2, 0, "button", 13);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(19, "main", 13);
-      \u0275\u0275element(20, "router-outlet");
+      \u0275\u0275elementStart(18, "main", 14);
+      \u0275\u0275element(19, "router-outlet");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(21, "footer", 14)(22, "div", 15);
-      \u0275\u0275text(23, "Partner Contact & Billing");
+      \u0275\u0275elementStart(20, "footer", 15)(21, "div", 16);
+      \u0275\u0275text(22, "Partner Contact & Billing");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(24, "div", 16);
-      \u0275\u0275template(25, LayoutComponent_article_25_Template, 16, 6, "article", 17);
+      \u0275\u0275elementStart(23, "div", 17);
+      \u0275\u0275template(24, LayoutComponent_article_24_Template, 16, 6, "article", 18);
       \u0275\u0275elementEnd()()();
     }
     if (rf & 2) {
       let tmp_3_0;
       let tmp_4_0;
       let tmp_6_0;
-      let tmp_8_0;
-      let tmp_10_0;
       \u0275\u0275advance(3);
       \u0275\u0275property("src", ctx.tenantLogo, \u0275\u0275sanitizeUrl)("alt", ctx.tenantName + " logo");
       \u0275\u0275advance(2);
@@ -35955,13 +36037,15 @@ var LayoutComponent = class _LayoutComponent {
       \u0275\u0275advance();
       \u0275\u0275styleProp("background", (tmp_4_0 = ctx.activeTenant == null ? null : ctx.activeTenant.cardArt == null ? null : ctx.activeTenant.cardArt.frontGradient) !== null && tmp_4_0 !== void 0 ? tmp_4_0 : null);
       \u0275\u0275advance(4);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(15, _c0))("queryParams", \u0275\u0275pureFunction1(16, _c1, (tmp_6_0 = ctx.companyCode) !== null && tmp_6_0 !== void 0 ? tmp_6_0 : void 0));
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(14, _c0))("queryParams", \u0275\u0275pureFunction1(15, _c1, (tmp_6_0 = ctx.companyCode) !== null && tmp_6_0 !== void 0 ? tmp_6_0 : void 0));
       \u0275\u0275advance(2);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(18, _c2))("queryParams", \u0275\u0275pureFunction1(19, _c1, (tmp_8_0 = ctx.companyCode) !== null && tmp_8_0 !== void 0 ? tmp_8_0 : void 0));
-      \u0275\u0275advance(2);
-      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(21, _c3))("queryParams", \u0275\u0275pureFunction1(22, _c1, (tmp_10_0 = ctx.companyCode) !== null && tmp_10_0 !== void 0 ? tmp_10_0 : void 0));
-      \u0275\u0275advance(2);
-      \u0275\u0275property("ngIf", ctx.authService.isAuthenticated());
+      \u0275\u0275property("ngIf", !ctx.isAuthenticated);
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", !ctx.isAuthenticated);
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.isAuthenticated);
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.isAuthenticated);
       \u0275\u0275advance(7);
       \u0275\u0275property("ngForOf", ctx.footerPartners);
     }
@@ -35991,11 +36075,12 @@ var authGuard = (route) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const tenantService = inject(TenantService);
-  if (authService.isAuthenticated()) {
+  const companyCode = route.queryParamMap.get("company") ?? tenantService.getCompanyCode();
+  if (authService.isAuthenticated(companyCode)) {
     return true;
   }
   return router.createUrlTree(["/login"], {
-    queryParams: { company: route.queryParamMap.get("company") ?? tenantService.getCompanyCode() ?? void 0 }
+    queryParams: { company: companyCode ?? void 0 }
   });
 };
 
@@ -42427,18 +42512,78 @@ var ReactiveFormsModule = class _ReactiveFormsModule {
 })();
 
 // src/app/components/login/login.component.ts
-function LoginComponent_p_12_Template(rf, ctx) {
+var _c03 = () => ["/register"];
+var _c13 = (a0) => ({ company: a0 });
+function LoginComponent_div_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 6);
+    \u0275\u0275elementStart(0, "div", 17);
+    \u0275\u0275text(1, " Signing in for tenant ");
+    \u0275\u0275elementStart(2, "strong");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.companyCode);
+  }
+}
+function LoginComponent_ng_template_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275text(1, "Tenant company code is missing from the URL.");
+    \u0275\u0275elementEnd();
+  }
+}
+function LoginComponent_small_28_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "small", 19);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
+    const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.errorMessage);
+    \u0275\u0275textInterpolate(ctx_r1.getFieldError("email"));
   }
 }
+function LoginComponent_small_33_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "small", 19);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.getFieldError("password"));
+  }
+}
+function LoginComponent_p_36_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 20);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.errorMessage);
+  }
+}
+function LoginComponent_p_37_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 21);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.successMessage);
+  }
+}
+var EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 var LoginComponent = class _LoginComponent {
   fb;
   authService;
@@ -42446,6 +42591,7 @@ var LoginComponent = class _LoginComponent {
   router;
   submitting = false;
   errorMessage = "";
+  successMessage = "";
   form;
   constructor(fb, authService, tenantService, router) {
     this.fb = fb;
@@ -42453,101 +42599,260 @@ var LoginComponent = class _LoginComponent {
     this.tenantService = tenantService;
     this.router = router;
     this.form = this.fb.group({
-      email: ["", [Validators.required, Validators.email]],
-      password: ["", [Validators.required]]
+      email: ["", [Validators.required, Validators.email, Validators.pattern(EMAIL_PATTERN)]],
+      password: ["", [Validators.required, Validators.minLength(6)]]
     });
+  }
+  get emailControl() {
+    return this.form.get("email");
+  }
+  get passwordControl() {
+    return this.form.get("password");
+  }
+  get companyCode() {
+    return this.tenantService.getCompanyCode();
+  }
+  ngOnInit() {
+    if (this.authService.isAuthenticated(this.companyCode)) {
+      void this.router.navigate(["/dashboard"], {
+        queryParams: { company: this.companyCode ?? void 0 }
+      });
+    }
+  }
+  showFieldError(control) {
+    return !!control && control.invalid && (control.touched || control.dirty);
+  }
+  getFieldError(controlName) {
+    const control = this.form.get(controlName);
+    if (!control?.errors || !this.showFieldError(control)) {
+      return "";
+    }
+    if (control.errors["required"]) {
+      return controlName === "email" ? "Email is required." : "Password is required.";
+    }
+    if (control.errors["email"] || control.errors["pattern"]) {
+      return "Enter a valid email address.";
+    }
+    if (control.errors["minlength"]) {
+      return "Password must be at least 6 characters.";
+    }
+    return "Please review this field.";
   }
   onSubmit() {
     this.errorMessage = "";
+    this.successMessage = "";
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.errorMessage = "Enter a valid email and a password with at least 6 characters.";
       return;
     }
-    const company = this.tenantService.getCompanyCode();
+    const company = this.companyCode;
     if (!company) {
       this.errorMessage = "Missing tenant company in URL (?company=...)";
       return;
     }
     this.submitting = true;
     this.authService.login(this.form.getRawValue(), company).subscribe({
-      next: ({ token }) => {
+      next: ({ token, message }) => {
         this.submitting = false;
-        this.authService.setToken(token);
-        this.router.navigate(["/dashboard"], { queryParams: { company } });
+        if (!token) {
+          this.errorMessage = "Login succeeded but no token was returned.";
+          return;
+        }
+        this.authService.setSession(company, token);
+        this.successMessage = message || "User logged in successfully.";
+        this.form.reset();
+        this.form.markAsPristine();
+        this.form.markAsUntouched();
+        void this.router.navigate(["/dashboard"], {
+          queryParams: { company }
+        });
       },
       error: (err) => {
         this.submitting = false;
-        this.errorMessage = err.error?.error ?? "Login failed";
+        this.errorMessage = err.message || "Login failed";
       }
     });
   }
   static \u0275fac = function LoginComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _LoginComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(TenantService), \u0275\u0275directiveInject(Router));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 13, vars: 4, consts: [[1, "form-card"], [3, "ngSubmit", "formGroup"], ["formControlName", "email", "type", "email"], ["formControlName", "password", "type", "password"], ["type", "submit", 3, "disabled"], ["class", "error", 4, "ngIf"], [1, "error"]], template: function LoginComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LoginComponent, selectors: [["app-login"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 42, vars: 18, consts: [["missingTenant", ""], [1, "login-shell"], [1, "login-info"], [1, "eyebrow"], [1, "description"], ["class", "tenant-chip", 4, "ngIf", "ngIfElse"], [1, "info-points"], [1, "form-card"], ["novalidate", "", 3, "ngSubmit", "formGroup"], ["formControlName", "email", "type", "email", "placeholder", "jane@company.com"], ["class", "field-error", 4, "ngIf"], ["formControlName", "password", "type", "password", "placeholder", "Enter your password"], ["type", "submit", 3, "disabled"], ["class", "error", 4, "ngIf"], ["class", "success", 4, "ngIf"], [1, "register-prompt"], [3, "routerLink", "queryParams"], [1, "tenant-chip"], [1, "tenant-chip", "warning"], [1, "field-error"], [1, "error"], [1, "success"]], template: function LoginComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "section", 0)(1, "h2");
-      \u0275\u0275text(2, "Login");
+      const _r1 = \u0275\u0275getCurrentView();
+      \u0275\u0275elementStart(0, "section", 1)(1, "article", 2)(2, "p", 3);
+      \u0275\u0275text(3, "CardFlex Access");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(3, "form", 1);
-      \u0275\u0275listener("ngSubmit", function LoginComponent_Template_form_ngSubmit_3_listener() {
-        return ctx.onSubmit();
-      });
-      \u0275\u0275elementStart(4, "label");
-      \u0275\u0275text(5, " Email ");
-      \u0275\u0275element(6, "input", 2);
+      \u0275\u0275elementStart(4, "h2");
+      \u0275\u0275text(5, "Welcome back");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(7, "label");
-      \u0275\u0275text(8, " Password ");
-      \u0275\u0275element(9, "input", 3);
+      \u0275\u0275elementStart(6, "p", 4);
+      \u0275\u0275text(7, " Sign in with your tenant email and password to access the dashboard and authenticated partner data. ");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(10, "button", 4);
-      \u0275\u0275text(11);
+      \u0275\u0275template(8, LoginComponent_div_8_Template, 4, 1, "div", 5)(9, LoginComponent_ng_template_9_Template, 2, 0, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      \u0275\u0275elementStart(11, "div", 6)(12, "div")(13, "strong");
+      \u0275\u0275text(14, "Protected by tenant routing");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(15, "span");
+      \u0275\u0275text(16, "Your session only works inside the selected issuer portal.");
       \u0275\u0275elementEnd()();
-      \u0275\u0275template(12, LoginComponent_p_12_Template, 2, 1, "p", 5);
+      \u0275\u0275elementStart(17, "div")(18, "strong");
+      \u0275\u0275text(19, "Fast account access");
       \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(20, "span");
+      \u0275\u0275text(21, "Go straight from sign-in to your branded dashboard and card activity.");
+      \u0275\u0275elementEnd()()()();
+      \u0275\u0275elementStart(22, "article", 7)(23, "form", 8);
+      \u0275\u0275listener("ngSubmit", function LoginComponent_Template_form_ngSubmit_23_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.onSubmit());
+      });
+      \u0275\u0275elementStart(24, "label")(25, "span");
+      \u0275\u0275text(26, "Email");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(27, "input", 9);
+      \u0275\u0275template(28, LoginComponent_small_28_Template, 2, 1, "small", 10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(29, "label")(30, "span");
+      \u0275\u0275text(31, "Password");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(32, "input", 11);
+      \u0275\u0275template(33, LoginComponent_small_33_Template, 2, 1, "small", 10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(34, "button", 12);
+      \u0275\u0275text(35);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275template(36, LoginComponent_p_36_Template, 2, 1, "p", 13)(37, LoginComponent_p_37_Template, 2, 1, "p", 14);
+      \u0275\u0275elementStart(38, "p", 15);
+      \u0275\u0275text(39, " Need an account? ");
+      \u0275\u0275elementStart(40, "a", 16);
+      \u0275\u0275text(41, "Create one here");
+      \u0275\u0275elementEnd()()()();
     }
     if (rf & 2) {
-      \u0275\u0275advance(3);
+      let tmp_13_0;
+      const missingTenant_r3 = \u0275\u0275reference(10);
+      \u0275\u0275advance(8);
+      \u0275\u0275property("ngIf", ctx.companyCode)("ngIfElse", missingTenant_r3);
+      \u0275\u0275advance(15);
       \u0275\u0275property("formGroup", ctx.form);
-      \u0275\u0275advance(7);
+      \u0275\u0275advance(4);
+      \u0275\u0275classProp("input-error", ctx.showFieldError(ctx.emailControl));
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.showFieldError(ctx.emailControl));
+      \u0275\u0275advance(4);
+      \u0275\u0275classProp("input-error", ctx.showFieldError(ctx.passwordControl));
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.showFieldError(ctx.passwordControl));
+      \u0275\u0275advance();
       \u0275\u0275property("disabled", ctx.submitting);
       \u0275\u0275advance();
-      \u0275\u0275textInterpolate(ctx.submitting ? "Signing in..." : "Sign In");
+      \u0275\u0275textInterpolate1(" ", ctx.submitting ? "Signing in..." : "Sign In", " ");
       \u0275\u0275advance();
       \u0275\u0275property("ngIf", ctx.errorMessage);
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.successMessage);
+      \u0275\u0275advance(3);
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(15, _c03))("queryParams", \u0275\u0275pureFunction1(16, _c13, (tmp_13_0 = ctx.companyCode) !== null && tmp_13_0 !== void 0 ? tmp_13_0 : void 0));
     }
-  }, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName], styles: ["\n\n.form-card[_ngcontent-%COMP%] {\n  background: #ffffff;\n  padding: 24px;\n  border-radius: 14px;\n  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);\n}\nform[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 12px;\n}\nlabel[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 6px;\n  font-size: 0.95rem;\n}\ninput[_ngcontent-%COMP%] {\n  height: 38px;\n  border: 1px solid #cbd5e1;\n  border-radius: 8px;\n  padding: 0 10px;\n}\nbutton[_ngcontent-%COMP%] {\n  margin-top: 8px;\n  border: none;\n  background: var(--tenant-color);\n  color: #ffffff;\n  border-radius: 8px;\n  padding: 10px;\n}\n.error[_ngcontent-%COMP%] {\n  color: #b91c1c;\n}\n/*# sourceMappingURL=login.component.css.map */"] });
+  }, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, RouterLink], styles: ["\n\n.login-shell[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 24px;\n  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\n  align-items: start;\n}\n.login-info[_ngcontent-%COMP%], \n.form-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.92);\n  padding: 28px;\n  border-radius: 18px;\n  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);\n  backdrop-filter: blur(10px);\n}\n.eyebrow[_ngcontent-%COMP%] {\n  margin: 0 0 8px;\n  font-size: 0.78rem;\n  font-weight: 700;\n  letter-spacing: 0.12em;\n  text-transform: uppercase;\n  color: var(--tenant-secondary-color);\n}\nh2[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: clamp(1.9rem, 3vw, 2.5rem);\n  line-height: 1.05;\n  color: #0f172a;\n}\n.description[_ngcontent-%COMP%] {\n  margin: 14px 0 0;\n  color: #475569;\n  line-height: 1.6;\n}\n.tenant-chip[_ngcontent-%COMP%] {\n  margin-top: 20px;\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 14px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--tenant-color) 12%, white);\n  color: #0f172a;\n  font-size: 0.95rem;\n}\n.tenant-chip.warning[_ngcontent-%COMP%] {\n  background: #fff7ed;\n  color: #9a3412;\n}\n.info-points[_ngcontent-%COMP%] {\n  margin-top: 24px;\n  display: grid;\n  gap: 14px;\n}\n.info-points[_ngcontent-%COMP%]   div[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 4px;\n  padding: 14px 16px;\n  border-radius: 16px;\n  background:\n    linear-gradient(\n      180deg,\n      rgba(255, 255, 255, 0.7),\n      rgba(241, 245, 249, 0.9));\n  border: 1px solid rgba(148, 163, 184, 0.22);\n}\n.info-points[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  font-size: 0.96rem;\n  color: #0f172a;\n}\n.info-points[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  color: #475569;\n  line-height: 1.55;\n}\nform[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 16px;\n}\nlabel[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 8px;\n  font-size: 0.95rem;\n  color: #334155;\n}\nlabel[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  font-weight: 600;\n}\ninput[_ngcontent-%COMP%] {\n  height: 44px;\n  border: 1px solid #cbd5e1;\n  border-radius: 12px;\n  padding: 0 14px;\n  font-size: 0.96rem;\n  background: #fff;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n}\ninput[_ngcontent-%COMP%]:focus {\n  outline: none;\n  border-color: var(--tenant-color);\n  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tenant-color) 16%, white);\n}\ninput.input-error[_ngcontent-%COMP%] {\n  border-color: #dc2626;\n  background: #fff7f7;\n}\n.field-error[_ngcontent-%COMP%], \n.error[_ngcontent-%COMP%] {\n  color: #b91c1c;\n}\n.field-error[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 0.84rem;\n}\nbutton[_ngcontent-%COMP%] {\n  margin-top: 8px;\n  border: none;\n  background:\n    linear-gradient(\n      135deg,\n      var(--tenant-color),\n      var(--tenant-secondary-color));\n  color: #ffffff;\n  border-radius: 12px;\n  padding: 13px 16px;\n  font-weight: 700;\n  font-size: 0.96rem;\n  transition:\n    transform 0.2s ease,\n    opacity 0.2s ease,\n    box-shadow 0.2s ease;\n}\nbutton[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: translateY(-1px);\n  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);\n}\nbutton[_ngcontent-%COMP%]:disabled {\n  opacity: 0.7;\n  cursor: not-allowed;\n}\n.error[_ngcontent-%COMP%], \n.success[_ngcontent-%COMP%] {\n  margin: 16px 0 0;\n  padding: 12px 14px;\n  border-radius: 12px;\n  font-size: 0.93rem;\n}\n.error[_ngcontent-%COMP%] {\n  background: #fef2f2;\n}\n.success[_ngcontent-%COMP%] {\n  color: #047857;\n  background: #ecfdf5;\n}\n.register-prompt[_ngcontent-%COMP%] {\n  margin: 18px 0 0;\n  color: #475569;\n}\n.register-prompt[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: var(--tenant-color);\n  font-weight: 700;\n  text-decoration: none;\n}\n.register-prompt[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover {\n  text-decoration: underline;\n}\n@media (max-width: 640px) {\n  .login-info[_ngcontent-%COMP%], \n   .form-card[_ngcontent-%COMP%] {\n    padding: 22px;\n  }\n}\n/*# sourceMappingURL=login.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoginComponent, { className: "LoginComponent" });
 })();
 
 // src/app/components/register/register.component.ts
-function RegisterComponent_p_15_Template(rf, ctx) {
+var _c04 = () => ["/login"];
+var _c14 = (a0) => ({ company: a0 });
+function RegisterComponent_div_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 8);
+    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275text(1, " Registering for tenant ");
+    \u0275\u0275elementStart(2, "strong");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.companyCode);
+  }
+}
+function RegisterComponent_ng_template_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275text(1, "Tenant company code is missing from the URL.");
+    \u0275\u0275elementEnd();
+  }
+}
+function RegisterComponent_small_28_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "small", 21);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
+    const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.errorMessage);
+    \u0275\u0275textInterpolate(ctx_r1.getFieldError("name"));
   }
 }
-function RegisterComponent_p_16_Template(rf, ctx) {
+function RegisterComponent_small_33_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 9);
+    \u0275\u0275elementStart(0, "small", 21);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
+    const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.successMessage);
+    \u0275\u0275textInterpolate(ctx_r1.getFieldError("email"));
   }
 }
+function RegisterComponent_small_38_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "small", 22);
+    \u0275\u0275text(1, "Use at least 6 characters.");
+    \u0275\u0275elementEnd();
+  }
+}
+function RegisterComponent_small_39_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "small", 21);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.getFieldError("password"));
+  }
+}
+function RegisterComponent_p_42_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 23);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.errorMessage);
+  }
+}
+function RegisterComponent_p_43_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 24);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.successMessage);
+  }
+}
+var EMAIL_PATTERN2 = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 var RegisterComponent = class _RegisterComponent {
   fb;
   authService;
@@ -42564,85 +42869,207 @@ var RegisterComponent = class _RegisterComponent {
     this.router = router;
     this.form = this.fb.group({
       name: ["", [Validators.required, Validators.minLength(2)]],
-      email: ["", [Validators.required, Validators.email]],
+      email: ["", [Validators.required, Validators.email, Validators.pattern(EMAIL_PATTERN2)]],
       password: ["", [Validators.required, Validators.minLength(6)]]
     });
+  }
+  get nameControl() {
+    return this.form.get("name");
+  }
+  get emailControl() {
+    return this.form.get("email");
+  }
+  get passwordControl() {
+    return this.form.get("password");
+  }
+  get companyCode() {
+    return this.tenantService.getCompanyCode();
+  }
+  showFieldError(control) {
+    return !!control && control.invalid && (control.touched || control.dirty);
+  }
+  getFieldError(controlName) {
+    const control = this.form.get(controlName);
+    if (!control?.errors || !this.showFieldError(control)) {
+      return "";
+    }
+    if (control.errors["required"]) {
+      return `${this.getFieldLabel(controlName)} is required.`;
+    }
+    if (control.errors["minlength"]) {
+      if (controlName === "password") {
+        return "Password must be at least 6 characters.";
+      }
+      return "Name must be at least 2 characters.";
+    }
+    if (control.errors["email"] || control.errors["pattern"]) {
+      return "Enter a valid email address.";
+    }
+    return "Please review this field.";
   }
   onSubmit() {
     this.errorMessage = "";
     this.successMessage = "";
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.errorMessage = "Enter a valid name, email, and password (minimum 6 characters).";
       return;
     }
-    const company = this.tenantService.getCompanyCode();
+    const company = this.companyCode;
     if (!company) {
       this.errorMessage = "Missing tenant company in URL (?company=...)";
       return;
     }
     this.submitting = true;
     this.authService.register(this.form.getRawValue(), company).subscribe({
-      next: () => {
+      next: (response) => {
         this.submitting = false;
-        this.successMessage = "Registration successful. Please log in.";
-        this.router.navigate(["/login"], { queryParams: { company } });
+        this.successMessage = response.message || "User registered successfully. You can sign in now.";
+        this.form.reset();
+        this.form.markAsPristine();
+        this.form.markAsUntouched();
+        window.setTimeout(() => {
+          void this.router.navigate(["/login"], {
+            queryParams: { company: company ?? void 0 }
+          });
+        }, 900);
       },
       error: (err) => {
         this.submitting = false;
-        this.errorMessage = err.error?.error ?? "Registration failed";
+        this.errorMessage = err.message || "Registration failed";
       }
     });
+  }
+  getFieldLabel(controlName) {
+    switch (controlName) {
+      case "name":
+        return "Name";
+      case "email":
+        return "Email";
+      case "password":
+        return "Password";
+    }
   }
   static \u0275fac = function RegisterComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _RegisterComponent)(\u0275\u0275directiveInject(FormBuilder), \u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(TenantService), \u0275\u0275directiveInject(Router));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegisterComponent, selectors: [["app-register"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 17, vars: 5, consts: [[1, "form-card"], [3, "ngSubmit", "formGroup"], ["formControlName", "name", "type", "text"], ["formControlName", "email", "type", "email"], ["formControlName", "password", "type", "password"], ["type", "submit", 3, "disabled"], ["class", "error", 4, "ngIf"], ["class", "success", 4, "ngIf"], [1, "error"], [1, "success"]], template: function RegisterComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegisterComponent, selectors: [["app-register"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 48, vars: 22, consts: [["missingTenant", ""], [1, "register-shell"], [1, "register-info"], [1, "eyebrow"], [1, "description"], ["class", "tenant-chip", 4, "ngIf", "ngIfElse"], [1, "info-points"], [1, "form-card"], ["novalidate", "", 3, "ngSubmit", "formGroup"], ["formControlName", "name", "type", "text", "placeholder", "Jane Doe"], ["class", "field-error", 4, "ngIf"], ["formControlName", "email", "type", "email", "placeholder", "jane@company.com"], ["formControlName", "password", "type", "password", "placeholder", "At least 6 characters"], ["class", "field-hint", 4, "ngIf"], ["type", "submit", 3, "disabled"], ["class", "error", 4, "ngIf"], ["class", "success", 4, "ngIf"], [1, "login-prompt"], [3, "routerLink", "queryParams"], [1, "tenant-chip"], [1, "tenant-chip", "warning"], [1, "field-error"], [1, "field-hint"], [1, "error"], [1, "success"]], template: function RegisterComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "section", 0)(1, "h2");
-      \u0275\u0275text(2, "Register");
+      const _r1 = \u0275\u0275getCurrentView();
+      \u0275\u0275elementStart(0, "section", 1)(1, "article", 2)(2, "p", 3);
+      \u0275\u0275text(3, "CardFlex Access");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(3, "form", 1);
-      \u0275\u0275listener("ngSubmit", function RegisterComponent_Template_form_ngSubmit_3_listener() {
-        return ctx.onSubmit();
-      });
-      \u0275\u0275elementStart(4, "label");
-      \u0275\u0275text(5, " Name ");
-      \u0275\u0275element(6, "input", 2);
+      \u0275\u0275elementStart(4, "h2");
+      \u0275\u0275text(5, "Create your account");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(7, "label");
-      \u0275\u0275text(8, " Email ");
-      \u0275\u0275element(9, "input", 3);
+      \u0275\u0275elementStart(6, "p", 4);
+      \u0275\u0275text(7, " Register with your full name, work email, and a secure password to access your tenant workspace. ");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(10, "label");
-      \u0275\u0275text(11, " Password ");
-      \u0275\u0275element(12, "input", 4);
+      \u0275\u0275template(8, RegisterComponent_div_8_Template, 4, 1, "div", 5)(9, RegisterComponent_ng_template_9_Template, 2, 0, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      \u0275\u0275elementStart(11, "div", 6)(12, "div")(13, "strong");
+      \u0275\u0275text(14, "Tenant-branded onboarding");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(13, "button", 5);
-      \u0275\u0275text(14);
+      \u0275\u0275elementStart(15, "span");
+      \u0275\u0275text(16, "Your account is created directly inside the issuer selected in the URL.");
       \u0275\u0275elementEnd()();
-      \u0275\u0275template(15, RegisterComponent_p_15_Template, 2, 1, "p", 6)(16, RegisterComponent_p_16_Template, 2, 1, "p", 7);
+      \u0275\u0275elementStart(17, "div")(18, "strong");
+      \u0275\u0275text(19, "Ready for Sprint 2 login");
       \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(20, "span");
+      \u0275\u0275text(21, "After registration, the app routes you into the matching sign-in flow automatically.");
+      \u0275\u0275elementEnd()()()();
+      \u0275\u0275elementStart(22, "article", 7)(23, "form", 8);
+      \u0275\u0275listener("ngSubmit", function RegisterComponent_Template_form_ngSubmit_23_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.onSubmit());
+      });
+      \u0275\u0275elementStart(24, "label")(25, "span");
+      \u0275\u0275text(26, "Name");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(27, "input", 9);
+      \u0275\u0275template(28, RegisterComponent_small_28_Template, 2, 1, "small", 10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(29, "label")(30, "span");
+      \u0275\u0275text(31, "Email");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(32, "input", 11);
+      \u0275\u0275template(33, RegisterComponent_small_33_Template, 2, 1, "small", 10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(34, "label")(35, "span");
+      \u0275\u0275text(36, "Password");
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(37, "input", 12);
+      \u0275\u0275template(38, RegisterComponent_small_38_Template, 2, 0, "small", 13)(39, RegisterComponent_small_39_Template, 2, 1, "small", 10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(40, "button", 14);
+      \u0275\u0275text(41);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275template(42, RegisterComponent_p_42_Template, 2, 1, "p", 15)(43, RegisterComponent_p_43_Template, 2, 1, "p", 16);
+      \u0275\u0275elementStart(44, "p", 17);
+      \u0275\u0275text(45, " Already registered? ");
+      \u0275\u0275elementStart(46, "a", 18);
+      \u0275\u0275text(47, "Sign in here");
+      \u0275\u0275elementEnd()()()();
     }
     if (rf & 2) {
-      \u0275\u0275advance(3);
+      let tmp_16_0;
+      const missingTenant_r3 = \u0275\u0275reference(10);
+      \u0275\u0275advance(8);
+      \u0275\u0275property("ngIf", ctx.companyCode)("ngIfElse", missingTenant_r3);
+      \u0275\u0275advance(15);
       \u0275\u0275property("formGroup", ctx.form);
-      \u0275\u0275advance(10);
+      \u0275\u0275advance(4);
+      \u0275\u0275classProp("input-error", ctx.showFieldError(ctx.nameControl));
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.showFieldError(ctx.nameControl));
+      \u0275\u0275advance(4);
+      \u0275\u0275classProp("input-error", ctx.showFieldError(ctx.emailControl));
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.showFieldError(ctx.emailControl));
+      \u0275\u0275advance(4);
+      \u0275\u0275classProp("input-error", ctx.showFieldError(ctx.passwordControl));
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", !ctx.showFieldError(ctx.passwordControl));
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.showFieldError(ctx.passwordControl));
+      \u0275\u0275advance();
       \u0275\u0275property("disabled", ctx.submitting);
       \u0275\u0275advance();
-      \u0275\u0275textInterpolate(ctx.submitting ? "Creating..." : "Create Account");
+      \u0275\u0275textInterpolate1(" ", ctx.submitting ? "Creating account..." : "Create Account", " ");
       \u0275\u0275advance();
       \u0275\u0275property("ngIf", ctx.errorMessage);
       \u0275\u0275advance();
       \u0275\u0275property("ngIf", ctx.successMessage);
+      \u0275\u0275advance(3);
+      \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(19, _c04))("queryParams", \u0275\u0275pureFunction1(20, _c14, (tmp_16_0 = ctx.companyCode) !== null && tmp_16_0 !== void 0 ? tmp_16_0 : void 0));
     }
-  }, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName], styles: ["\n\n.form-card[_ngcontent-%COMP%] {\n  background: #ffffff;\n  padding: 24px;\n  border-radius: 14px;\n  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);\n}\nform[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 12px;\n}\nlabel[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 6px;\n  font-size: 0.95rem;\n}\ninput[_ngcontent-%COMP%] {\n  height: 38px;\n  border: 1px solid #cbd5e1;\n  border-radius: 8px;\n  padding: 0 10px;\n}\nbutton[_ngcontent-%COMP%] {\n  margin-top: 8px;\n  border: none;\n  background: var(--tenant-color);\n  color: #ffffff;\n  border-radius: 8px;\n  padding: 10px;\n}\n.error[_ngcontent-%COMP%] {\n  color: #b91c1c;\n}\n.success[_ngcontent-%COMP%] {\n  color: #047857;\n}\n/*# sourceMappingURL=register.component.css.map */"] });
+  }, dependencies: [CommonModule, NgIf, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, RouterLink], styles: ["\n\n.register-shell[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 24px;\n  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\n  align-items: start;\n}\n.register-info[_ngcontent-%COMP%], \n.form-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.92);\n  padding: 28px;\n  border-radius: 18px;\n  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);\n  backdrop-filter: blur(10px);\n}\n.eyebrow[_ngcontent-%COMP%] {\n  margin: 0 0 8px;\n  font-size: 0.78rem;\n  font-weight: 700;\n  letter-spacing: 0.12em;\n  text-transform: uppercase;\n  color: var(--tenant-secondary-color);\n}\nh2[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: clamp(1.9rem, 3vw, 2.5rem);\n  line-height: 1.05;\n  color: #0f172a;\n}\n.description[_ngcontent-%COMP%] {\n  margin: 14px 0 0;\n  color: #475569;\n  line-height: 1.6;\n}\n.tenant-chip[_ngcontent-%COMP%] {\n  margin-top: 20px;\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 14px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--tenant-color) 12%, white);\n  color: #0f172a;\n  font-size: 0.95rem;\n}\n.tenant-chip.warning[_ngcontent-%COMP%] {\n  background: #fff7ed;\n  color: #9a3412;\n}\n.info-points[_ngcontent-%COMP%] {\n  margin-top: 24px;\n  display: grid;\n  gap: 14px;\n}\n.info-points[_ngcontent-%COMP%]   div[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 4px;\n  padding: 14px 16px;\n  border-radius: 16px;\n  background:\n    linear-gradient(\n      180deg,\n      rgba(255, 255, 255, 0.7),\n      rgba(241, 245, 249, 0.9));\n  border: 1px solid rgba(148, 163, 184, 0.22);\n}\n.info-points[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  font-size: 0.96rem;\n  color: #0f172a;\n}\n.info-points[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  color: #475569;\n  line-height: 1.55;\n}\nform[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 16px;\n}\nlabel[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 8px;\n  font-size: 0.95rem;\n  color: #334155;\n}\nlabel[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  font-weight: 600;\n}\ninput[_ngcontent-%COMP%] {\n  height: 44px;\n  border: 1px solid #cbd5e1;\n  border-radius: 12px;\n  padding: 0 14px;\n  font-size: 0.96rem;\n  background: #fff;\n  transition: border-color 0.2s ease, box-shadow 0.2s ease;\n}\ninput[_ngcontent-%COMP%]:focus {\n  outline: none;\n  border-color: var(--tenant-color);\n  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tenant-color) 16%, white);\n}\ninput.input-error[_ngcontent-%COMP%] {\n  border-color: #dc2626;\n  background: #fff7f7;\n}\n.field-hint[_ngcontent-%COMP%], \n.field-error[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 0.84rem;\n}\n.field-hint[_ngcontent-%COMP%] {\n  color: #64748b;\n}\n.field-error[_ngcontent-%COMP%], \n.error[_ngcontent-%COMP%] {\n  color: #b91c1c;\n}\nbutton[_ngcontent-%COMP%] {\n  margin-top: 8px;\n  border: none;\n  background:\n    linear-gradient(\n      135deg,\n      var(--tenant-color),\n      var(--tenant-secondary-color));\n  color: #ffffff;\n  border-radius: 12px;\n  padding: 13px 16px;\n  font-weight: 700;\n  font-size: 0.96rem;\n  transition:\n    transform 0.2s ease,\n    opacity 0.2s ease,\n    box-shadow 0.2s ease;\n}\nbutton[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: translateY(-1px);\n  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);\n}\nbutton[_ngcontent-%COMP%]:disabled {\n  opacity: 0.7;\n  cursor: not-allowed;\n}\n.error[_ngcontent-%COMP%], \n.success[_ngcontent-%COMP%] {\n  margin: 16px 0 0;\n  padding: 12px 14px;\n  border-radius: 12px;\n  font-size: 0.93rem;\n}\n.error[_ngcontent-%COMP%] {\n  background: #fef2f2;\n}\n.success[_ngcontent-%COMP%] {\n  color: #047857;\n  background: #ecfdf5;\n}\n.login-prompt[_ngcontent-%COMP%] {\n  margin: 18px 0 0;\n  color: #475569;\n}\n.login-prompt[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: var(--tenant-color);\n  font-weight: 700;\n  text-decoration: none;\n}\n.login-prompt[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover {\n  text-decoration: underline;\n}\n@media (max-width: 640px) {\n  .register-info[_ngcontent-%COMP%], \n   .form-card[_ngcontent-%COMP%] {\n    padding: 22px;\n  }\n}\n/*# sourceMappingURL=register.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RegisterComponent, { className: "RegisterComponent" });
 })();
 
+// src/app/models/dashboard.model.ts
+function normalizeDashboardData(response) {
+  return {
+    tenant: response.tenant,
+    accountSummary: response.accountSummary ?? response.card ?? createEmptyAccountSummary(),
+    transactions: response.transactions ?? []
+  };
+}
+function createEmptyAccountSummary() {
+  return {
+    maskedCardNumber: "",
+    creditLimit: 0,
+    availableBalance: 0,
+    currency: "USD"
+  };
+}
+
 // src/app/components/dashboard/dashboard.component.ts
-function DashboardComponent_section_0_tr_32_Template(rf, ctx) {
+var _c05 = () => ["/login"];
+var _c15 = (a0) => ({ company: a0 });
+function DashboardComponent_section_0_tr_79_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr")(1, "td");
     \u0275\u0275text(2);
@@ -42655,144 +43082,279 @@ function DashboardComponent_section_0_tr_32_Template(rf, ctx) {
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "currency");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "td");
-    \u0275\u0275text(10);
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(9, "td")(10, "span", 20);
+    \u0275\u0275text(11);
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const tx_r1 = ctx.$implicit;
+    const tx_r3 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(3, 4, tx_r1.date, "mediumDate"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(3, 8, tx_r3.date, "mediumDate"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(tx_r1.merchant);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(8, 7, tx_r1.amount, ctx_r1.data.card.currency));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(tx_r1.status);
+    \u0275\u0275textInterpolate(tx_r3.merchant);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("debit", tx_r3.amount < 0)("credit", tx_r3.amount >= 0);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 11, tx_r3.amount, ctx_r1.data.accountSummary.currency), " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(tx_r3.status);
   }
 }
 function DashboardComponent_section_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "section", 2)(1, "h2");
-    \u0275\u0275text(2);
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "section", 2)(1, "div", 3)(2, "div")(3, "p", 4);
+    \u0275\u0275text(4, "Authenticated Workspace");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 3)(4, "p")(5, "strong");
-    \u0275\u0275text(6, "Card Number:");
+    \u0275\u0275elementStart(5, "h2");
+    \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275text(7);
+    \u0275\u0275elementStart(7, "p", 5);
+    \u0275\u0275text(8, " View account summary, available credit, and recent transaction activity for ");
+    \u0275\u0275elementStart(9, "strong");
+    \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "p")(9, "strong");
-    \u0275\u0275text(10, "Credit Limit:");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(11);
-    \u0275\u0275pipe(12, "currency");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "p")(14, "strong");
-    \u0275\u0275text(15, "Available Balance:");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(16);
-    \u0275\u0275pipe(17, "currency");
+    \u0275\u0275text(11, ". ");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(18, "h3");
-    \u0275\u0275text(19, "Recent Transactions");
+    \u0275\u0275elementStart(12, "div", 6)(13, "div", 7)(14, "span", 8);
+    \u0275\u0275text(15, "Account Summary");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "table")(21, "thead")(22, "tr")(23, "th");
-    \u0275\u0275text(24, "Date");
+    \u0275\u0275elementStart(16, "span", 9);
+    \u0275\u0275text(17, "CardFlex");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(25, "th");
-    \u0275\u0275text(26, "Merchant");
+    \u0275\u0275elementStart(18, "span", 10);
+    \u0275\u0275text(19);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(27, "th");
-    \u0275\u0275text(28, "Amount");
+    \u0275\u0275elementStart(20, "div", 11)(21, "div")(22, "small");
+    \u0275\u0275text(23, "Available");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(29, "th");
-    \u0275\u0275text(30, "Status");
+    \u0275\u0275elementStart(24, "strong");
+    \u0275\u0275text(25);
+    \u0275\u0275pipe(26, "currency");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(27, "div")(28, "small");
+    \u0275\u0275text(29, "Utilization");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(30, "strong");
+    \u0275\u0275text(31);
+    \u0275\u0275elementEnd()()()()()();
+    \u0275\u0275elementStart(32, "div", 12)(33, "article", 13)(34, "span");
+    \u0275\u0275text(35, "Total Limit");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(36, "strong");
+    \u0275\u0275text(37);
+    \u0275\u0275pipe(38, "currency");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(39, "p");
+    \u0275\u0275text(40, "Maximum approved spending power for this credit line.");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(41, "article", 13)(42, "span");
+    \u0275\u0275text(43, "Available Balance");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(44, "strong");
+    \u0275\u0275text(45);
+    \u0275\u0275pipe(46, "currency");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(47, "p");
+    \u0275\u0275text(48, "Current funds still available for purchases and payments.");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(49, "article", 14)(50, "span");
+    \u0275\u0275text(51, "Used Credit");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(52, "strong");
+    \u0275\u0275text(53);
+    \u0275\u0275pipe(54, "currency");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(55, "p");
+    \u0275\u0275text(56, "Live balance currently consuming the credit limit.");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(31, "tbody");
-    \u0275\u0275template(32, DashboardComponent_section_0_tr_32_Template, 11, 10, "tr", 4);
+    \u0275\u0275elementStart(57, "section", 15)(58, "div", 16)(59, "div")(60, "p", 4);
+    \u0275\u0275text(61, "Activity Feed");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(62, "h3");
+    \u0275\u0275text(63, "Recent Transactions");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(64, "button", 17);
+    \u0275\u0275listener("click", function DashboardComponent_section_0_Template_button_click_64_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.reload());
+    });
+    \u0275\u0275text(65, "Refresh");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(66, "div", 18)(67, "table")(68, "thead")(69, "tr")(70, "th");
+    \u0275\u0275text(71, "Date");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(72, "th");
+    \u0275\u0275text(73, "Merchant");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(74, "th");
+    \u0275\u0275text(75, "Amount");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(76, "th");
+    \u0275\u0275text(77, "Status");
     \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(78, "tbody");
+    \u0275\u0275template(79, DashboardComponent_section_0_tr_79_Template, 12, 14, "tr", 19);
+    \u0275\u0275elementEnd()()()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
+    \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1("", ctx_r1.data.tenant.name, " Dashboard");
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", ctx_r1.data.card.maskedCardNumber, "");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(12, 5, ctx_r1.data.card.creditLimit, ctx_r1.data.card.currency), "");
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(17, 8, ctx_r1.data.card.availableBalance, ctx_r1.data.card.currency), "");
-    \u0275\u0275advance(16);
-    \u0275\u0275property("ngForOf", ctx_r1.data.transactions);
+    \u0275\u0275textInterpolate(ctx_r1.data.tenant.companyCode);
+    \u0275\u0275advance(9);
+    \u0275\u0275textInterpolate(ctx_r1.data.accountSummary.maskedCardNumber);
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(26, 10, ctx_r1.data.accountSummary.availableBalance, ctx_r1.data.accountSummary.currency));
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate1("", ctx_r1.utilizationPercent, "%");
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(38, 13, ctx_r1.data.accountSummary.creditLimit, ctx_r1.data.accountSummary.currency));
+    \u0275\u0275advance(8);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(46, 16, ctx_r1.data.accountSummary.availableBalance, ctx_r1.data.accountSummary.currency));
+    \u0275\u0275advance(8);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(54, 19, ctx_r1.paymentUsed, ctx_r1.data.accountSummary.currency));
+    \u0275\u0275advance(26);
+    \u0275\u0275property("ngForOf", ctx_r1.data.transactions)("ngForTrackBy", ctx_r1.trackTransaction);
   }
 }
-function DashboardComponent_ng_template_1_p_0_Template(rf, ctx) {
+function DashboardComponent_ng_template_1_section_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p");
-    \u0275\u0275text(1, "Loading dashboard...");
+    \u0275\u0275elementStart(0, "section", 22)(1, "div", 23)(2, "p", 4);
+    \u0275\u0275text(3, "Loading");
     \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "h3");
+    \u0275\u0275text(5, "Preparing your tenant dashboard");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "p");
+    \u0275\u0275text(7, "We\u2019re pulling the latest card summary and transaction activity now.");
+    \u0275\u0275elementEnd()()();
   }
 }
-function DashboardComponent_ng_template_1_p_1_Template(rf, ctx) {
+function DashboardComponent_ng_template_1_section_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 7);
-    \u0275\u0275text(1);
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "section", 22)(1, "div", 24)(2, "p", 4);
+    \u0275\u0275text(3, "Dashboard Unavailable");
     \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "h3");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "p");
+    \u0275\u0275text(7, "Check the tenant URL and make sure you are signed in for the correct issuer workspace.");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "div", 25)(9, "button", 17);
+    \u0275\u0275listener("click", function DashboardComponent_ng_template_1_section_1_Template_button_click_9_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.reload());
+    });
+    \u0275\u0275text(10, "Try Again");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "a", 26);
+    \u0275\u0275text(12, "Return to Login");
+    \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
+    let tmp_5_0;
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
+    \u0275\u0275advance(5);
     \u0275\u0275textInterpolate(ctx_r1.errorMessage);
+    \u0275\u0275advance(6);
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(3, _c05))("queryParams", \u0275\u0275pureFunction1(4, _c15, (tmp_5_0 = ctx_r1.companyCode) !== null && tmp_5_0 !== void 0 ? tmp_5_0 : void 0));
   }
 }
 function DashboardComponent_ng_template_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, DashboardComponent_ng_template_1_p_0_Template, 2, 0, "p", 5)(1, DashboardComponent_ng_template_1_p_1_Template, 2, 1, "p", 6);
+    \u0275\u0275template(0, DashboardComponent_ng_template_1_section_0_Template, 8, 0, "section", 21)(1, DashboardComponent_ng_template_1_section_1_Template, 13, 6, "section", 21);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("ngIf", !ctx_r1.errorMessage);
+    \u0275\u0275property("ngIf", ctx_r1.loading);
     \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r1.errorMessage);
+    \u0275\u0275property("ngIf", !ctx_r1.loading && ctx_r1.errorMessage);
   }
 }
 var DashboardComponent = class _DashboardComponent {
   authService;
   tenantService;
+  router;
   data = null;
+  loading = true;
   errorMessage = "";
-  constructor(authService, tenantService) {
+  constructor(authService, tenantService, router) {
     this.authService = authService;
     this.tenantService = tenantService;
+    this.router = router;
   }
   ngOnInit() {
+    this.loadDashboard();
+  }
+  get companyCode() {
+    return this.tenantService.getCompanyCode();
+  }
+  get paymentUsed() {
+    if (!this.data) {
+      return 0;
+    }
+    return this.data.accountSummary.creditLimit - this.data.accountSummary.availableBalance;
+  }
+  get utilizationPercent() {
+    if (!this.data?.accountSummary.creditLimit) {
+      return 0;
+    }
+    return Math.round(this.paymentUsed / this.data.accountSummary.creditLimit * 100);
+  }
+  trackTransaction(_, transaction) {
+    return `${transaction.date}-${transaction.merchant}-${transaction.amount}`;
+  }
+  reload() {
+    this.loadDashboard();
+  }
+  loadDashboard() {
     const company = this.tenantService.getCompanyCode();
+    this.loading = true;
+    this.errorMessage = "";
     if (!company) {
+      this.loading = false;
       this.errorMessage = "Missing tenant company in URL (?company=...)";
       return;
     }
     this.authService.getDashboard(company).subscribe({
       next: (response) => {
-        this.data = response;
+        this.loading = false;
+        this.data = normalizeDashboardData(response);
       },
       error: (err) => {
-        this.errorMessage = err.error?.error ?? "Failed to load dashboard";
+        this.loading = false;
+        this.data = null;
+        const status = typeof err === "object" && err !== null && "status" in err ? Number(err.status) : void 0;
+        const message = err instanceof Error ? err.message : typeof err === "object" && err !== null && "message" in err && typeof err.message === "string" ? err.message : "Failed to load dashboard";
+        this.errorMessage = message;
+        if (status === 401 || status === 403) {
+          this.authService.logout(company);
+          void this.router.navigate(["/login"], {
+            queryParams: { company }
+          });
+        }
       }
     });
   }
   static \u0275fac = function DashboardComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _DashboardComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(TenantService));
+    return new (__ngFactoryType__ || _DashboardComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(TenantService), \u0275\u0275directiveInject(Router));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DashboardComponent, selectors: [["app-dashboard"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 2, consts: [["loadingOrError", ""], ["class", "dashboard", 4, "ngIf", "ngIfElse"], [1, "dashboard"], [1, "card-block"], [4, "ngFor", "ngForOf"], [4, "ngIf"], ["class", "error", 4, "ngIf"], [1, "error"]], template: function DashboardComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DashboardComponent, selectors: [["app-dashboard"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 2, consts: [["loadingOrError", ""], ["class", "dashboard-shell", 4, "ngIf", "ngIfElse"], [1, "dashboard-shell"], [1, "dashboard-hero"], [1, "eyebrow"], [1, "hero-copy"], [1, "credit-card-panel"], [1, "credit-card-face"], [1, "eyebrow", "card-eyebrow"], [1, "network"], [1, "masked-number"], [1, "card-meta"], [1, "metrics-grid"], [1, "metric-card"], [1, "metric-card", "accent"], [1, "transactions-panel"], [1, "section-heading"], ["type", "button", 1, "ghost-button", 3, "click"], [1, "table-wrap"], [4, "ngFor", "ngForOf", "ngForTrackBy"], [1, "status-pill"], ["class", "dashboard-state", 4, "ngIf"], [1, "dashboard-state"], [1, "state-card", "shimmer-card"], [1, "state-card"], [1, "state-actions"], [3, "routerLink", "queryParams"]], template: function DashboardComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275template(0, DashboardComponent_section_0_Template, 33, 11, "section", 1)(1, DashboardComponent_ng_template_1_Template, 2, 2, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      \u0275\u0275template(0, DashboardComponent_section_0_Template, 80, 22, "section", 1)(1, DashboardComponent_ng_template_1_Template, 2, 2, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
     }
     if (rf & 2) {
-      const loadingOrError_r3 = \u0275\u0275reference(2);
-      \u0275\u0275property("ngIf", ctx.data)("ngIfElse", loadingOrError_r3);
+      const loadingOrError_r5 = \u0275\u0275reference(2);
+      \u0275\u0275property("ngIf", ctx.data)("ngIfElse", loadingOrError_r5);
     }
-  }, dependencies: [CommonModule, NgForOf, NgIf, CurrencyPipe, DatePipe], styles: ["\n\n.dashboard[_ngcontent-%COMP%] {\n  background: #ffffff;\n  padding: 24px;\n  border-radius: 14px;\n  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);\n}\n.card-block[_ngcontent-%COMP%] {\n  border: 1px solid #dbe3ef;\n  border-left: 6px solid var(--tenant-color);\n  border-radius: 10px;\n  padding: 12px;\n  margin-bottom: 18px;\n}\ntable[_ngcontent-%COMP%] {\n  width: 100%;\n  border-collapse: collapse;\n}\nth[_ngcontent-%COMP%], \ntd[_ngcontent-%COMP%] {\n  border-bottom: 1px solid #e5e7eb;\n  padding: 10px;\n  text-align: left;\n}\n.error[_ngcontent-%COMP%] {\n  color: #b91c1c;\n}\n/*# sourceMappingURL=dashboard.component.css.map */"] });
+  }, dependencies: [CommonModule, NgForOf, NgIf, CurrencyPipe, DatePipe, RouterLink], styles: ['\n\n.dashboard-shell[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 24px;\n}\n.dashboard-hero[_ngcontent-%COMP%], \n.transactions-panel[_ngcontent-%COMP%], \n.state-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.92);\n  border: 1px solid rgba(148, 163, 184, 0.16);\n  border-radius: 24px;\n  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);\n  backdrop-filter: blur(12px);\n}\n.dashboard-hero[_ngcontent-%COMP%] {\n  padding: 28px;\n  display: grid;\n  gap: 24px;\n  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);\n  align-items: center;\n}\n.eyebrow[_ngcontent-%COMP%] {\n  margin: 0 0 8px;\n  font-size: 0.78rem;\n  font-weight: 700;\n  letter-spacing: 0.12em;\n  text-transform: uppercase;\n  color: var(--tenant-secondary-color);\n}\nh2[_ngcontent-%COMP%], \nh3[_ngcontent-%COMP%] {\n  margin: 0;\n  color: #0f172a;\n}\n.hero-copy[_ngcontent-%COMP%] {\n  margin: 14px 0 0;\n  color: #475569;\n  line-height: 1.65;\n  max-width: 52ch;\n}\n.credit-card-panel[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n}\n.credit-card-face[_ngcontent-%COMP%] {\n  width: min(100%, 320px);\n  min-height: 200px;\n  padding: 24px;\n  border-radius: 24px;\n  color: #ffffff;\n  background:\n    radial-gradient(\n      circle at top left,\n      rgba(255, 255, 255, 0.22),\n      transparent 34%),\n    linear-gradient(\n      135deg,\n      var(--tenant-color),\n      var(--tenant-secondary-color));\n  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.22);\n  display: grid;\n  align-content: space-between;\n}\n.network[_ngcontent-%COMP%] {\n  font-size: 0.92rem;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.card-eyebrow[_ngcontent-%COMP%] {\n  margin-bottom: 0;\n  color: rgba(255, 255, 255, 0.78);\n}\n.masked-number[_ngcontent-%COMP%] {\n  font-size: clamp(1.2rem, 2.8vw, 1.6rem);\n  font-weight: 700;\n  letter-spacing: 0.18em;\n}\n.card-meta[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 16px;\n}\n.card-meta[_ngcontent-%COMP%]   small[_ngcontent-%COMP%] {\n  display: block;\n  margin-bottom: 4px;\n  color: rgba(255, 255, 255, 0.78);\n}\n.card-meta[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  font-size: 1rem;\n}\n.metrics-grid[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 16px;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n}\n.metric-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgba(255, 255, 255, 0.9),\n      rgba(248, 250, 252, 0.95));\n  border: 1px solid rgba(148, 163, 184, 0.16);\n  border-radius: 20px;\n  padding: 20px;\n  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);\n}\n.metric-card[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  display: block;\n  color: #64748b;\n  font-size: 0.92rem;\n  margin-bottom: 10px;\n}\n.metric-card[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  display: block;\n  font-size: clamp(1.5rem, 2.8vw, 2rem);\n  color: #0f172a;\n}\n.metric-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  margin: 10px 0 0;\n  color: #475569;\n  line-height: 1.55;\n}\n.metric-card.accent[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      color-mix(in srgb, var(--tenant-color) 10%, white),\n      rgba(255, 255, 255, 0.95));\n}\n.transactions-panel[_ngcontent-%COMP%], \n.state-card[_ngcontent-%COMP%] {\n  padding: 24px;\n}\n.section-heading[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  gap: 16px;\n  margin-bottom: 18px;\n}\n.ghost-button[_ngcontent-%COMP%], \n.state-actions[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  border: 1px solid rgba(15, 23, 42, 0.12);\n  background: #ffffff;\n  color: #0f172a;\n  border-radius: 999px;\n  padding: 10px 16px;\n  font-weight: 700;\n  text-decoration: none;\n}\n.table-wrap[_ngcontent-%COMP%] {\n  overflow-x: auto;\n}\ntable[_ngcontent-%COMP%] {\n  width: 100%;\n  border-collapse: collapse;\n}\nth[_ngcontent-%COMP%], \ntd[_ngcontent-%COMP%] {\n  border-bottom: 1px solid #e2e8f0;\n  padding: 14px 12px;\n  text-align: left;\n}\nth[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n  color: #64748b;\n}\ntd[_ngcontent-%COMP%] {\n  color: #0f172a;\n}\n.debit[_ngcontent-%COMP%] {\n  color: #b91c1c;\n  font-weight: 700;\n}\n.credit[_ngcontent-%COMP%] {\n  color: #047857;\n  font-weight: 700;\n}\n.status-pill[_ngcontent-%COMP%] {\n  display: inline-flex;\n  align-items: center;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--tenant-color) 12%, white);\n  padding: 6px 10px;\n  font-size: 0.84rem;\n  font-weight: 700;\n}\n.dashboard-state[_ngcontent-%COMP%] {\n  display: grid;\n}\n.state-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%]:last-of-type {\n  color: #475569;\n  line-height: 1.6;\n}\n.state-actions[_ngcontent-%COMP%] {\n  margin-top: 18px;\n  display: flex;\n  gap: 12px;\n  flex-wrap: wrap;\n}\n.shimmer-card[_ngcontent-%COMP%] {\n  position: relative;\n  overflow: hidden;\n}\n.shimmer-card[_ngcontent-%COMP%]::after {\n  content: "";\n  position: absolute;\n  inset: 0;\n  transform: translateX(-100%);\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.6),\n      transparent);\n  animation: _ngcontent-%COMP%_shimmer 1.5s infinite;\n}\n@keyframes _ngcontent-%COMP%_shimmer {\n  100% {\n    transform: translateX(100%);\n  }\n}\n@media (max-width: 860px) {\n  .dashboard-hero[_ngcontent-%COMP%] {\n    grid-template-columns: 1fr;\n  }\n  .section-heading[_ngcontent-%COMP%] {\n    align-items: flex-start;\n    flex-direction: column;\n  }\n}\n@media (max-width: 640px) {\n  .dashboard-hero[_ngcontent-%COMP%], \n   .transactions-panel[_ngcontent-%COMP%], \n   .state-card[_ngcontent-%COMP%] {\n    padding: 20px;\n  }\n}\n/*# sourceMappingURL=dashboard.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DashboardComponent, { className: "DashboardComponent" });
@@ -42810,7 +43372,8 @@ var appRoutes = [
 // src/app/interceptors/auth.interceptor.ts
 var authInterceptor = (req, next) => {
   const authService = inject(AuthService);
-  const token = authService.getToken();
+  const tenantService = inject(TenantService);
+  const token = authService.getToken(tenantService.getCompanyCode());
   if (!token) {
     return next(req);
   }
