@@ -43069,7 +43069,7 @@ function createEmptyAccountSummary() {
 // src/app/components/dashboard/dashboard.component.ts
 var _c05 = () => ["/login"];
 var _c15 = (a0) => ({ company: a0 });
-function DashboardComponent_section_0_tr_79_Template(rf, ctx) {
+function DashboardComponent_section_0_div_68_tr_13_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "tr")(1, "td");
     \u0275\u0275text(2);
@@ -43082,13 +43082,13 @@ function DashboardComponent_section_0_tr_79_Template(rf, ctx) {
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "currency");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "td")(10, "span", 20);
+    \u0275\u0275elementStart(9, "td")(10, "span", 23);
     \u0275\u0275text(11);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const tx_r3 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(2);
+    const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(3, 8, tx_r3.date, "mediumDate"));
     \u0275\u0275advance(3);
@@ -43101,32 +43101,78 @@ function DashboardComponent_section_0_tr_79_Template(rf, ctx) {
     \u0275\u0275textInterpolate(tx_r3.status);
   }
 }
+function DashboardComponent_section_0_div_68_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 21)(1, "table")(2, "thead")(3, "tr")(4, "th");
+    \u0275\u0275text(5, "Date");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "th");
+    \u0275\u0275text(7, "Merchant");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "th");
+    \u0275\u0275text(9, "Amount");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "th");
+    \u0275\u0275text(11, "Status");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(12, "tbody");
+    \u0275\u0275template(13, DashboardComponent_section_0_div_68_tr_13_Template, 12, 14, "tr", 22);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(13);
+    \u0275\u0275property("ngForOf", ctx_r1.data.transactions)("ngForTrackBy", ctx_r1.trackTransaction);
+  }
+}
+function DashboardComponent_section_0_ng_template_69_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 24)(1, "p", 5);
+    \u0275\u0275text(2, "No Activity Yet");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "h4");
+    \u0275\u0275text(4, "No transactions available");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "p");
+    \u0275\u0275text(6, " This account summary is live, but there are no recent transactions to show right now for ");
+    \u0275\u0275elementStart(7, "strong");
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(9, ". ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(8);
+    \u0275\u0275textInterpolate(ctx_r1.data.tenant.companyCode);
+  }
+}
 function DashboardComponent_section_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "section", 2)(1, "div", 3)(2, "div")(3, "p", 4);
+    \u0275\u0275elementStart(0, "section", 3)(1, "div", 4)(2, "div")(3, "p", 5);
     \u0275\u0275text(4, "Authenticated Workspace");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "h2");
     \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "p", 5);
+    \u0275\u0275elementStart(7, "p", 6);
     \u0275\u0275text(8, " View account summary, available credit, and recent transaction activity for ");
     \u0275\u0275elementStart(9, "strong");
     \u0275\u0275text(10);
     \u0275\u0275elementEnd();
     \u0275\u0275text(11, ". ");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(12, "div", 6)(13, "div", 7)(14, "span", 8);
+    \u0275\u0275elementStart(12, "div", 7)(13, "div", 8)(14, "span", 9);
     \u0275\u0275text(15, "Account Summary");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "span", 9);
+    \u0275\u0275elementStart(16, "span", 10);
     \u0275\u0275text(17, "CardFlex");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "span", 10);
+    \u0275\u0275elementStart(18, "span", 11);
     \u0275\u0275text(19);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "div", 11)(21, "div")(22, "small");
+    \u0275\u0275elementStart(20, "div", 12)(21, "div")(22, "small");
     \u0275\u0275text(23, "Available");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(24, "strong");
@@ -43139,7 +43185,7 @@ function DashboardComponent_section_0_Template(rf, ctx) {
     \u0275\u0275elementStart(30, "strong");
     \u0275\u0275text(31);
     \u0275\u0275elementEnd()()()()()();
-    \u0275\u0275elementStart(32, "div", 12)(33, "article", 13)(34, "span");
+    \u0275\u0275elementStart(32, "div", 13)(33, "article", 14)(34, "span");
     \u0275\u0275text(35, "Total Limit");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(36, "strong");
@@ -43149,7 +43195,7 @@ function DashboardComponent_section_0_Template(rf, ctx) {
     \u0275\u0275elementStart(39, "p");
     \u0275\u0275text(40, "Maximum approved spending power for this credit line.");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(41, "article", 13)(42, "span");
+    \u0275\u0275elementStart(41, "article", 14)(42, "span");
     \u0275\u0275text(43, "Available Balance");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(44, "strong");
@@ -43159,7 +43205,7 @@ function DashboardComponent_section_0_Template(rf, ctx) {
     \u0275\u0275elementStart(47, "p");
     \u0275\u0275text(48, "Current funds still available for purchases and payments.");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(49, "article", 14)(50, "span");
+    \u0275\u0275elementStart(49, "article", 15)(50, "span");
     \u0275\u0275text(51, "Used Credit");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(52, "strong");
@@ -43169,37 +43215,28 @@ function DashboardComponent_section_0_Template(rf, ctx) {
     \u0275\u0275elementStart(55, "p");
     \u0275\u0275text(56, "Live balance currently consuming the credit limit.");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(57, "section", 15)(58, "div", 16)(59, "div")(60, "p", 4);
+    \u0275\u0275elementStart(57, "section", 16)(58, "div", 17)(59, "div")(60, "p", 5);
     \u0275\u0275text(61, "Activity Feed");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(62, "h3");
     \u0275\u0275text(63, "Recent Transactions");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(64, "p", 18);
+    \u0275\u0275text(65, "Latest posted and pending activity for this tenant account.");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(64, "button", 17);
-    \u0275\u0275listener("click", function DashboardComponent_section_0_Template_button_click_64_listener() {
+    \u0275\u0275elementStart(66, "button", 19);
+    \u0275\u0275listener("click", function DashboardComponent_section_0_Template_button_click_66_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.reload());
     });
-    \u0275\u0275text(65, "Refresh");
+    \u0275\u0275text(67, "Refresh");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(66, "div", 18)(67, "table")(68, "thead")(69, "tr")(70, "th");
-    \u0275\u0275text(71, "Date");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(72, "th");
-    \u0275\u0275text(73, "Merchant");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(74, "th");
-    \u0275\u0275text(75, "Amount");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(76, "th");
-    \u0275\u0275text(77, "Status");
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(78, "tbody");
-    \u0275\u0275template(79, DashboardComponent_section_0_tr_79_Template, 12, 14, "tr", 19);
-    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275template(68, DashboardComponent_section_0_div_68_Template, 14, 2, "div", 20)(69, DashboardComponent_section_0_ng_template_69_Template, 10, 1, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    const emptyTransactions_r4 = \u0275\u0275reference(70);
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1("", ctx_r1.data.tenant.name, " Dashboard");
@@ -43217,13 +43254,13 @@ function DashboardComponent_section_0_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(46, 16, ctx_r1.data.accountSummary.availableBalance, ctx_r1.data.accountSummary.currency));
     \u0275\u0275advance(8);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(54, 19, ctx_r1.paymentUsed, ctx_r1.data.accountSummary.currency));
-    \u0275\u0275advance(26);
-    \u0275\u0275property("ngForOf", ctx_r1.data.transactions)("ngForTrackBy", ctx_r1.trackTransaction);
+    \u0275\u0275advance(15);
+    \u0275\u0275property("ngIf", ctx_r1.hasTransactions)("ngIfElse", emptyTransactions_r4);
   }
 }
 function DashboardComponent_ng_template_1_section_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "section", 22)(1, "div", 23)(2, "p", 4);
+    \u0275\u0275elementStart(0, "section", 26)(1, "div", 27)(2, "p", 5);
     \u0275\u0275text(3, "Loading");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "h3");
@@ -43236,8 +43273,8 @@ function DashboardComponent_ng_template_1_section_0_Template(rf, ctx) {
 }
 function DashboardComponent_ng_template_1_section_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "section", 22)(1, "div", 24)(2, "p", 4);
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "section", 26)(1, "div", 28)(2, "p", 5);
     \u0275\u0275text(3, "Dashboard Unavailable");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "h3");
@@ -43246,15 +43283,15 @@ function DashboardComponent_ng_template_1_section_1_Template(rf, ctx) {
     \u0275\u0275elementStart(6, "p");
     \u0275\u0275text(7, "Check the tenant URL and make sure you are signed in for the correct issuer workspace.");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 25)(9, "button", 17);
+    \u0275\u0275elementStart(8, "div", 29)(9, "button", 19);
     \u0275\u0275listener("click", function DashboardComponent_ng_template_1_section_1_Template_button_click_9_listener() {
-      \u0275\u0275restoreView(_r4);
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.reload());
     });
     \u0275\u0275text(10, "Try Again");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "a", 26);
+    \u0275\u0275elementStart(11, "a", 30);
     \u0275\u0275text(12, "Return to Login");
     \u0275\u0275elementEnd()()()();
   }
@@ -43269,7 +43306,7 @@ function DashboardComponent_ng_template_1_section_1_Template(rf, ctx) {
 }
 function DashboardComponent_ng_template_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, DashboardComponent_ng_template_1_section_0_Template, 8, 0, "section", 21)(1, DashboardComponent_ng_template_1_section_1_Template, 13, 6, "section", 21);
+    \u0275\u0275template(0, DashboardComponent_ng_template_1_section_0_Template, 8, 0, "section", 25)(1, DashboardComponent_ng_template_1_section_1_Template, 13, 6, "section", 25);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -43307,6 +43344,9 @@ var DashboardComponent = class _DashboardComponent {
       return 0;
     }
     return Math.round(this.paymentUsed / this.data.accountSummary.creditLimit * 100);
+  }
+  get hasTransactions() {
+    return (this.data?.transactions.length ?? 0) > 0;
   }
   trackTransaction(_, transaction) {
     return `${transaction.date}-${transaction.merchant}-${transaction.amount}`;
@@ -43346,15 +43386,15 @@ var DashboardComponent = class _DashboardComponent {
   static \u0275fac = function DashboardComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _DashboardComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(TenantService), \u0275\u0275directiveInject(Router));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DashboardComponent, selectors: [["app-dashboard"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 2, consts: [["loadingOrError", ""], ["class", "dashboard-shell", 4, "ngIf", "ngIfElse"], [1, "dashboard-shell"], [1, "dashboard-hero"], [1, "eyebrow"], [1, "hero-copy"], [1, "credit-card-panel"], [1, "credit-card-face"], [1, "eyebrow", "card-eyebrow"], [1, "network"], [1, "masked-number"], [1, "card-meta"], [1, "metrics-grid"], [1, "metric-card"], [1, "metric-card", "accent"], [1, "transactions-panel"], [1, "section-heading"], ["type", "button", 1, "ghost-button", 3, "click"], [1, "table-wrap"], [4, "ngFor", "ngForOf", "ngForTrackBy"], [1, "status-pill"], ["class", "dashboard-state", 4, "ngIf"], [1, "dashboard-state"], [1, "state-card", "shimmer-card"], [1, "state-card"], [1, "state-actions"], [3, "routerLink", "queryParams"]], template: function DashboardComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DashboardComponent, selectors: [["app-dashboard"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 3, vars: 2, consts: [["loadingOrError", ""], ["emptyTransactions", ""], ["class", "dashboard-shell", 4, "ngIf", "ngIfElse"], [1, "dashboard-shell"], [1, "dashboard-hero"], [1, "eyebrow"], [1, "hero-copy"], [1, "credit-card-panel"], [1, "credit-card-face"], [1, "eyebrow", "card-eyebrow"], [1, "network"], [1, "masked-number"], [1, "card-meta"], [1, "metrics-grid"], [1, "metric-card"], [1, "metric-card", "accent"], [1, "transactions-panel"], [1, "section-heading"], [1, "section-copy"], ["type", "button", 1, "ghost-button", 3, "click"], ["class", "table-wrap", 4, "ngIf", "ngIfElse"], [1, "table-wrap"], [4, "ngFor", "ngForOf", "ngForTrackBy"], [1, "status-pill"], [1, "empty-state-card"], ["class", "dashboard-state", 4, "ngIf"], [1, "dashboard-state"], [1, "state-card", "shimmer-card"], [1, "state-card"], [1, "state-actions"], [3, "routerLink", "queryParams"]], template: function DashboardComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275template(0, DashboardComponent_section_0_Template, 80, 22, "section", 1)(1, DashboardComponent_ng_template_1_Template, 2, 2, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+      \u0275\u0275template(0, DashboardComponent_section_0_Template, 71, 22, "section", 2)(1, DashboardComponent_ng_template_1_Template, 2, 2, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
     }
     if (rf & 2) {
-      const loadingOrError_r5 = \u0275\u0275reference(2);
-      \u0275\u0275property("ngIf", ctx.data)("ngIfElse", loadingOrError_r5);
+      const loadingOrError_r6 = \u0275\u0275reference(2);
+      \u0275\u0275property("ngIf", ctx.data)("ngIfElse", loadingOrError_r6);
     }
-  }, dependencies: [CommonModule, NgForOf, NgIf, CurrencyPipe, DatePipe, RouterLink], styles: ['\n\n.dashboard-shell[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 24px;\n}\n.dashboard-hero[_ngcontent-%COMP%], \n.transactions-panel[_ngcontent-%COMP%], \n.state-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.92);\n  border: 1px solid rgba(148, 163, 184, 0.16);\n  border-radius: 24px;\n  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);\n  backdrop-filter: blur(12px);\n}\n.dashboard-hero[_ngcontent-%COMP%] {\n  padding: 28px;\n  display: grid;\n  gap: 24px;\n  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);\n  align-items: center;\n}\n.eyebrow[_ngcontent-%COMP%] {\n  margin: 0 0 8px;\n  font-size: 0.78rem;\n  font-weight: 700;\n  letter-spacing: 0.12em;\n  text-transform: uppercase;\n  color: var(--tenant-secondary-color);\n}\nh2[_ngcontent-%COMP%], \nh3[_ngcontent-%COMP%] {\n  margin: 0;\n  color: #0f172a;\n}\n.hero-copy[_ngcontent-%COMP%] {\n  margin: 14px 0 0;\n  color: #475569;\n  line-height: 1.65;\n  max-width: 52ch;\n}\n.credit-card-panel[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n}\n.credit-card-face[_ngcontent-%COMP%] {\n  width: min(100%, 320px);\n  min-height: 200px;\n  padding: 24px;\n  border-radius: 24px;\n  color: #ffffff;\n  background:\n    radial-gradient(\n      circle at top left,\n      rgba(255, 255, 255, 0.22),\n      transparent 34%),\n    linear-gradient(\n      135deg,\n      var(--tenant-color),\n      var(--tenant-secondary-color));\n  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.22);\n  display: grid;\n  align-content: space-between;\n}\n.network[_ngcontent-%COMP%] {\n  font-size: 0.92rem;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.card-eyebrow[_ngcontent-%COMP%] {\n  margin-bottom: 0;\n  color: rgba(255, 255, 255, 0.78);\n}\n.masked-number[_ngcontent-%COMP%] {\n  font-size: clamp(1.2rem, 2.8vw, 1.6rem);\n  font-weight: 700;\n  letter-spacing: 0.18em;\n}\n.card-meta[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 16px;\n}\n.card-meta[_ngcontent-%COMP%]   small[_ngcontent-%COMP%] {\n  display: block;\n  margin-bottom: 4px;\n  color: rgba(255, 255, 255, 0.78);\n}\n.card-meta[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  font-size: 1rem;\n}\n.metrics-grid[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 16px;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n}\n.metric-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgba(255, 255, 255, 0.9),\n      rgba(248, 250, 252, 0.95));\n  border: 1px solid rgba(148, 163, 184, 0.16);\n  border-radius: 20px;\n  padding: 20px;\n  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);\n}\n.metric-card[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  display: block;\n  color: #64748b;\n  font-size: 0.92rem;\n  margin-bottom: 10px;\n}\n.metric-card[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  display: block;\n  font-size: clamp(1.5rem, 2.8vw, 2rem);\n  color: #0f172a;\n}\n.metric-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  margin: 10px 0 0;\n  color: #475569;\n  line-height: 1.55;\n}\n.metric-card.accent[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      color-mix(in srgb, var(--tenant-color) 10%, white),\n      rgba(255, 255, 255, 0.95));\n}\n.transactions-panel[_ngcontent-%COMP%], \n.state-card[_ngcontent-%COMP%] {\n  padding: 24px;\n}\n.section-heading[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  gap: 16px;\n  margin-bottom: 18px;\n}\n.ghost-button[_ngcontent-%COMP%], \n.state-actions[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  border: 1px solid rgba(15, 23, 42, 0.12);\n  background: #ffffff;\n  color: #0f172a;\n  border-radius: 999px;\n  padding: 10px 16px;\n  font-weight: 700;\n  text-decoration: none;\n}\n.table-wrap[_ngcontent-%COMP%] {\n  overflow-x: auto;\n}\ntable[_ngcontent-%COMP%] {\n  width: 100%;\n  border-collapse: collapse;\n}\nth[_ngcontent-%COMP%], \ntd[_ngcontent-%COMP%] {\n  border-bottom: 1px solid #e2e8f0;\n  padding: 14px 12px;\n  text-align: left;\n}\nth[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n  color: #64748b;\n}\ntd[_ngcontent-%COMP%] {\n  color: #0f172a;\n}\n.debit[_ngcontent-%COMP%] {\n  color: #b91c1c;\n  font-weight: 700;\n}\n.credit[_ngcontent-%COMP%] {\n  color: #047857;\n  font-weight: 700;\n}\n.status-pill[_ngcontent-%COMP%] {\n  display: inline-flex;\n  align-items: center;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--tenant-color) 12%, white);\n  padding: 6px 10px;\n  font-size: 0.84rem;\n  font-weight: 700;\n}\n.dashboard-state[_ngcontent-%COMP%] {\n  display: grid;\n}\n.state-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%]:last-of-type {\n  color: #475569;\n  line-height: 1.6;\n}\n.state-actions[_ngcontent-%COMP%] {\n  margin-top: 18px;\n  display: flex;\n  gap: 12px;\n  flex-wrap: wrap;\n}\n.shimmer-card[_ngcontent-%COMP%] {\n  position: relative;\n  overflow: hidden;\n}\n.shimmer-card[_ngcontent-%COMP%]::after {\n  content: "";\n  position: absolute;\n  inset: 0;\n  transform: translateX(-100%);\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.6),\n      transparent);\n  animation: _ngcontent-%COMP%_shimmer 1.5s infinite;\n}\n@keyframes _ngcontent-%COMP%_shimmer {\n  100% {\n    transform: translateX(100%);\n  }\n}\n@media (max-width: 860px) {\n  .dashboard-hero[_ngcontent-%COMP%] {\n    grid-template-columns: 1fr;\n  }\n  .section-heading[_ngcontent-%COMP%] {\n    align-items: flex-start;\n    flex-direction: column;\n  }\n}\n@media (max-width: 640px) {\n  .dashboard-hero[_ngcontent-%COMP%], \n   .transactions-panel[_ngcontent-%COMP%], \n   .state-card[_ngcontent-%COMP%] {\n    padding: 20px;\n  }\n}\n/*# sourceMappingURL=dashboard.component.css.map */'] });
+  }, dependencies: [CommonModule, NgForOf, NgIf, CurrencyPipe, DatePipe, RouterLink], styles: ['\n\n.dashboard-shell[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 24px;\n}\n.dashboard-hero[_ngcontent-%COMP%], \n.transactions-panel[_ngcontent-%COMP%], \n.state-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.92);\n  border: 1px solid rgba(148, 163, 184, 0.16);\n  border-radius: 24px;\n  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);\n  backdrop-filter: blur(12px);\n}\n.dashboard-hero[_ngcontent-%COMP%] {\n  padding: 28px;\n  display: grid;\n  gap: 24px;\n  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);\n  align-items: center;\n}\n.eyebrow[_ngcontent-%COMP%] {\n  margin: 0 0 8px;\n  font-size: 0.78rem;\n  font-weight: 700;\n  letter-spacing: 0.12em;\n  text-transform: uppercase;\n  color: var(--tenant-secondary-color);\n}\nh2[_ngcontent-%COMP%], \nh3[_ngcontent-%COMP%], \nh4[_ngcontent-%COMP%] {\n  margin: 0;\n  color: #0f172a;\n}\n.hero-copy[_ngcontent-%COMP%] {\n  margin: 14px 0 0;\n  color: #475569;\n  line-height: 1.65;\n  max-width: 52ch;\n}\n.credit-card-panel[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n}\n.credit-card-face[_ngcontent-%COMP%] {\n  width: min(100%, 320px);\n  min-height: 200px;\n  padding: 24px;\n  border-radius: 24px;\n  color: #ffffff;\n  background:\n    radial-gradient(\n      circle at top left,\n      rgba(255, 255, 255, 0.22),\n      transparent 34%),\n    linear-gradient(\n      135deg,\n      var(--tenant-color),\n      var(--tenant-secondary-color));\n  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.22);\n  display: grid;\n  align-content: space-between;\n}\n.network[_ngcontent-%COMP%] {\n  font-size: 0.92rem;\n  font-weight: 700;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n}\n.card-eyebrow[_ngcontent-%COMP%] {\n  margin-bottom: 0;\n  color: rgba(255, 255, 255, 0.78);\n}\n.masked-number[_ngcontent-%COMP%] {\n  font-size: clamp(1.2rem, 2.8vw, 1.6rem);\n  font-weight: 700;\n  letter-spacing: 0.18em;\n}\n.card-meta[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 16px;\n}\n.card-meta[_ngcontent-%COMP%]   small[_ngcontent-%COMP%] {\n  display: block;\n  margin-bottom: 4px;\n  color: rgba(255, 255, 255, 0.78);\n}\n.card-meta[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  font-size: 1rem;\n}\n.metrics-grid[_ngcontent-%COMP%] {\n  display: grid;\n  gap: 16px;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n}\n.metric-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgba(255, 255, 255, 0.9),\n      rgba(248, 250, 252, 0.95));\n  border: 1px solid rgba(148, 163, 184, 0.16);\n  border-radius: 20px;\n  padding: 20px;\n  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);\n}\n.metric-card[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  display: block;\n  color: #64748b;\n  font-size: 0.92rem;\n  margin-bottom: 10px;\n}\n.metric-card[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  display: block;\n  font-size: clamp(1.5rem, 2.8vw, 2rem);\n  color: #0f172a;\n}\n.metric-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  margin: 10px 0 0;\n  color: #475569;\n  line-height: 1.55;\n}\n.metric-card.accent[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      color-mix(in srgb, var(--tenant-color) 10%, white),\n      rgba(255, 255, 255, 0.95));\n}\n.transactions-panel[_ngcontent-%COMP%], \n.state-card[_ngcontent-%COMP%] {\n  padding: 24px;\n}\n.section-heading[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  gap: 16px;\n  margin-bottom: 18px;\n}\n.section-copy[_ngcontent-%COMP%] {\n  margin: 8px 0 0;\n  color: #64748b;\n  line-height: 1.55;\n}\n.ghost-button[_ngcontent-%COMP%], \n.state-actions[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  border: 1px solid rgba(15, 23, 42, 0.12);\n  background: #ffffff;\n  color: #0f172a;\n  border-radius: 999px;\n  padding: 10px 16px;\n  font-weight: 700;\n  text-decoration: none;\n}\n.table-wrap[_ngcontent-%COMP%] {\n  overflow-x: auto;\n}\n.empty-state-card[_ngcontent-%COMP%] {\n  border: 1px dashed color-mix(in srgb, var(--tenant-color) 35%, #cbd5e1);\n  border-radius: 20px;\n  padding: 28px 24px;\n  background:\n    radial-gradient(\n      circle at top right,\n      color-mix(in srgb, var(--tenant-color) 8%, white),\n      transparent 32%),\n    linear-gradient(\n      180deg,\n      rgba(255, 255, 255, 0.94),\n      rgba(248, 250, 252, 0.98));\n}\n.empty-state-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%]:last-of-type {\n  margin: 12px 0 0;\n  color: #475569;\n  line-height: 1.65;\n  max-width: 56ch;\n}\ntable[_ngcontent-%COMP%] {\n  width: 100%;\n  border-collapse: collapse;\n}\nth[_ngcontent-%COMP%], \ntd[_ngcontent-%COMP%] {\n  border-bottom: 1px solid #e2e8f0;\n  padding: 14px 12px;\n  text-align: left;\n}\nth[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n  color: #64748b;\n}\ntd[_ngcontent-%COMP%] {\n  color: #0f172a;\n}\n.debit[_ngcontent-%COMP%] {\n  color: #b91c1c;\n  font-weight: 700;\n}\n.credit[_ngcontent-%COMP%] {\n  color: #047857;\n  font-weight: 700;\n}\n.status-pill[_ngcontent-%COMP%] {\n  display: inline-flex;\n  align-items: center;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--tenant-color) 12%, white);\n  padding: 6px 10px;\n  font-size: 0.84rem;\n  font-weight: 700;\n}\n.dashboard-state[_ngcontent-%COMP%] {\n  display: grid;\n}\n.state-card[_ngcontent-%COMP%]   p[_ngcontent-%COMP%]:last-of-type {\n  color: #475569;\n  line-height: 1.6;\n}\n.state-actions[_ngcontent-%COMP%] {\n  margin-top: 18px;\n  display: flex;\n  gap: 12px;\n  flex-wrap: wrap;\n}\n.shimmer-card[_ngcontent-%COMP%] {\n  position: relative;\n  overflow: hidden;\n}\n.shimmer-card[_ngcontent-%COMP%]::after {\n  content: "";\n  position: absolute;\n  inset: 0;\n  transform: translateX(-100%);\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 255, 255, 0.6),\n      transparent);\n  animation: _ngcontent-%COMP%_shimmer 1.5s infinite;\n}\n@keyframes _ngcontent-%COMP%_shimmer {\n  100% {\n    transform: translateX(100%);\n  }\n}\n@media (max-width: 860px) {\n  .dashboard-hero[_ngcontent-%COMP%] {\n    grid-template-columns: 1fr;\n  }\n  .section-heading[_ngcontent-%COMP%] {\n    align-items: flex-start;\n    flex-direction: column;\n  }\n}\n@media (max-width: 640px) {\n  .dashboard-hero[_ngcontent-%COMP%], \n   .transactions-panel[_ngcontent-%COMP%], \n   .state-card[_ngcontent-%COMP%] {\n    padding: 20px;\n  }\n}\n/*# sourceMappingURL=dashboard.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DashboardComponent, { className: "DashboardComponent" });

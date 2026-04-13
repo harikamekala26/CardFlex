@@ -53,12 +53,13 @@
       <div>
         <p class="eyebrow">Activity Feed</p>
         <h3>Recent Transactions</h3>
+        <p class="section-copy">Latest posted and pending activity for this tenant account.</p>
       </div>
 
       <button type="button" class="ghost-button" (click)="reload()">Refresh</button>
     </div>
 
-    <div class="table-wrap">
+    <div class="table-wrap" *ngIf="hasTransactions; else emptyTransactions">
       <table>
         <thead>
           <tr>
@@ -82,6 +83,17 @@
         </tbody>
       </table>
     </div>
+
+    <ng-template #emptyTransactions>
+      <div class="empty-state-card">
+        <p class="eyebrow">No Activity Yet</p>
+        <h4>No transactions available</h4>
+        <p>
+          This account summary is live, but there are no recent transactions to show right now for
+          <strong>{{ data.tenant.companyCode }}</strong>.
+        </p>
+      </div>
+    </ng-template>
   </section>
 </section>
 
