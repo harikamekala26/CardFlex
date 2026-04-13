@@ -4,7 +4,7 @@ import { Observable, catchError, throwError } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../models/auth.model';
-import { DashboardData } from '../models/dashboard.model';
+import { DashboardApiResponse } from '../models/dashboard.model';
 
 interface TenantSession {
   companyCode: string;
@@ -35,10 +35,10 @@ export class AuthService {
       .pipe(catchError((error) => this.handleApiError(error, 'Login failed. Please try again.')));
   }
 
-  getDashboard(companyCode: string): Observable<DashboardData> {
+  getDashboard(companyCode: string): Observable<DashboardApiResponse> {
     const params = new HttpParams().set('company', companyCode);
     return this.http
-      .get<DashboardData>(`${this.apiBaseUrl}/dashboard`, { params })
+      .get<DashboardApiResponse>(`${this.apiBaseUrl}/dashboard`, { params })
       .pipe(catchError((error) => this.handleApiError(error, 'Unable to load dashboard data.')));
   }
 

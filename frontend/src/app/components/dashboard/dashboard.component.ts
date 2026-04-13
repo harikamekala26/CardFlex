@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { TenantService } from '../../services/tenant.service';
-import { DashboardData } from '../../models/dashboard.model';
+import { DashboardData, DashboardTransaction, normalizeDashboardData } from '../../models/dashboard.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -37,18 +37,18 @@ export class DashboardComponent implements OnInit {
       return 0;
     }
 
-    return this.data.card.creditLimit - this.data.card.availableBalance;
+    return this.data.accountSummary.creditLimit - this.data.accountSummary.availableBalance;
   }
 
   get utilizationPercent(): number {
-    if (!this.data?.card.creditLimit) {
+    if (!this.data?.accountSummary.creditLimit) {
       return 0;
     }
 
-    return Math.round((this.paymentUsed / this.data.card.creditLimit) * 100);
+    return Math.round((this.paymentUsed / this.data.accountSummary.creditLimit) * 100);
   }
 
-  trackTransaction(_: number, transaction: DashboardData['transactions'][number]): string {
+  trackTransaction(_: number, transaction: DashboardTransaction): string {
     return `${transaction.date}-${transaction.merchant}-${transaction.amount}`;
   }
 
@@ -70,14 +70,21 @@ export class DashboardComponent implements OnInit {
     this.authService.getDashboard(company).subscribe({
       next: (response) => {
         this.loading = false;
-        this.data = response;
+        this.data = normalizeDashboardData(response);
       },
       error: (err) => {
         this.loading = false;
         this.data = null;
-        this.errorMessage = err.error?.error ?? 'Failed to load dashboard';
+        const status = typeof err === 'object' && err !== null && 'status' in err ? Number(err.status) : undefined;
+        const message =
+          err instanceof Error
+            ? err.message
+            : typeof err === 'object' && err !== null && 'message' in err && typeof err.message === 'string'
+              ? err.message
+              : 'Failed to load dashboard';
+        this.errorMessage = message;
 
-        if (err.status === 401 || err.status === 403) {
+        if (status === 401 || status === 403) {
           this.authService.logout(company);
           void this.router.navigate(['/login'], {
             queryParams: { company }

@@ -69,6 +69,11 @@ h3 {
   text-transform: uppercase;
 }
 
+.card-eyebrow {
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .masked-number {
   font-size: clamp(1.2rem, 2.8vw, 1.6rem);
   font-weight: 700;
