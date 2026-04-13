@@ -28,7 +28,7 @@ func main() {
 	}))
 
 	authController := &controllers.AuthController{DB: db.Client, JWTSecret: env.JWTSecret}
-	dashboardController := &controllers.DashboardController{}
+	dashboardController := &controllers.DashboardController{DB: db.Client}
 
 	routes.RegisterRoutes(r, db.Client, authController, dashboardController, env.JWTSecret)
 
