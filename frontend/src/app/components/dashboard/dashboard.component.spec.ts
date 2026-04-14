@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
+import { provideRouter, Router, RouterLink } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
 
 import { DashboardComponent } from './dashboard.component';
@@ -130,6 +131,19 @@ describe('DashboardComponent', () => {
     expect(component.errorMessage).toBe('Missing tenant company in URL (?company=...)');
   });
 
+  it('preserves the tenant company on the return-to-login link for recoverable errors', () => {
+    spyOn(authService, 'getDashboard').and.returnValue(throwError(() => new Error('temporarily unavailable')));
+
+    fixture.detectChanges();
+
+    const loginLink = fixture.debugElement
+      .queryAll(By.css('a'))
+      .find((element) => element.nativeElement.textContent.includes('Return to Login'));
+
+    expect(component.errorMessage).toBe('temporarily unavailable');
+    expect(loginLink?.injector.get(RouterLink).queryParams).toEqual({ company: 'acme' });
+  });
+
   it('logs out and routes to login when dashboard access is unauthorized', () => {
     const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
     const getDashboardSpy = spyOn(authService, 'getDashboard').and.returnValue(
@@ -140,6 +154,21 @@ describe('DashboardComponent', () => {
     fixture.detectChanges();
 
     expect(getDashboardSpy).toHaveBeenCalledWith('acme');
+    expect(logoutSpy).toHaveBeenCalledWith('acme');
+    expect(navigateSpy).toHaveBeenCalledWith(['/login'], {
+      queryParams: { company: 'acme' }
+    });
+  });
+
+  it('also logs out and routes to login when dashboard access is forbidden for the tenant', () => {
+    const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+    const logoutSpy = spyOn(authService, 'logout').and.callThrough();
+    spyOn(authService, 'getDashboard').and.returnValue(
+      throwError(() => ({ status: 403, message: 'token tenant mismatch' }))
+    );
+
+    fixture.detectChanges();
+
     expect(logoutSpy).toHaveBeenCalledWith('acme');
     expect(navigateSpy).toHaveBeenCalledWith(['/login'], {
       queryParams: { company: 'acme' }
