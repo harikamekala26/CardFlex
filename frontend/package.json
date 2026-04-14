@@ -7,8 +7,8 @@
     "start": "node ./node_modules/@angular/cli/bin/ng.js serve",
     "build": "node ./node_modules/@angular/cli/bin/ng.js build",
     "test": "node ./node_modules/@angular/cli/bin/ng.js test --watch=false --browsers=ChromeHeadless",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:open": "env -u ELECTRON_RUN_AS_NODE cypress open",
+    "cypress:run": "env -u ELECTRON_RUN_AS_NODE cypress run"
   },
   "dependencies": {
     "@angular/animations": "^18.2.0",
@@ -28,7 +28,7 @@
     "@angular/cli": "^18.2.0",
     "@angular/compiler-cli": "^18.2.0",
     "@types/jasmine": "^5.1.4",
-    "cypress": "^13.17.0",
+    "cypress": "^15.13.1",
     "jasmine-core": "^5.2.0",
     "karma": "^6.4.4",
     "karma-chrome-launcher": "^3.2.0",
