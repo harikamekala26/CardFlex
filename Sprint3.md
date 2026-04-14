@@ -118,18 +118,38 @@ Cypress execution result:
 
 ## Backend Tests
 
-Sprint 3 backend verification included:
+Sprint 3 backend verification included both existing Sprint 2 backend tests and new Sprint 3 backend tests.
 
-- dashboard controller test coverage
-- account and transaction migration test coverage
-- tenant-aware dashboard validation behavior
+### Previous backend tests
 
-Relevant backend test files:
+- `backend/controllers/auth_controller_test.go`
+  - `TestRegisterReturnsDummyResponseForTenant`
+  - `TestRegisterSupportsCompanyQueryFallback`
+  - `TestRegisterRejectsDuplicateEmailForTenant`
+  - `TestRegisterRequiresTenantIdentifier`
+  - `TestLoginReturnsDummyResponseForTenant`
+  - `TestLoginValidationRejectsInvalidInputs`
+
+- `backend/middleware/auth_middleware_test.go`
+  - `TestJWTAuthAllowsProtectedRouteWithValidToken`
+  - `TestJWTAuthRejectsExpiredToken`
+  - `TestJWTAuthRejectsTokenForDifferentTenant`
+  - `TestJWTAuthRejectsMissingAuthorizationHeader`
+
+### Sprint 3 backend tests added
 
 - `backend/controllers/dashboard_controller_test.go`
+  - `TestGetDashboardReturnsTenantScopedData`
+  - `TestGetDashboardReturnsEmptyTransactionsWhenNoTransactionsExist`
+  - `TestGetDashboardReturnsNotFoundWhenAccountMissing`
+  - `TestGetDashboardReturnsUnauthorizedWhenClaimsMissing`
+  - `TestGetDashboardReturnsUnauthorizedWhenTenantMissing`
+
 - `backend/migrations/account_migration_test.go`
+  - `TestMigrateAccountsCreatesTenantScopedAccountTable`
+
 - `backend/migrations/transaction_migration_test.go`
-- existing authentication and middleware tests remained part of backend verification
+  - `TestMigrateTransactionsSeedsSampleDashboardData`
 
 ## Test Execution
 
@@ -137,14 +157,14 @@ Run backend tests:
 
 ```bash
 cd backend
-go test ./...
+GOCACHE=/tmp/cardflex-go-cache go test ./...
 ```
 
-Run frontend unit tests:
+Run backend build verification:
 
 ```bash
-cd frontend
-npm test
+cd backend
+GOCACHE=/tmp/cardflex-go-cache go build ./...
 ```
 
 Run Cypress end-to-end tests:
