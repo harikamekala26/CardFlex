@@ -78,4 +78,51 @@ describe('CardFlex auth flow', () => {
     cy.location('pathname').should('eq', '/dashboard');
     cy.contains('Capital One Dashboard').should('be.visible');
   });
+
+  it('shows an API error when tenant registration fails', () => {
+    cy.intercept('POST', '**/register', {
+      statusCode: 409,
+      body: { error: 'email already exists for this tenant' }
+    }).as('registerRequest');
+
+    cy.visit('/register?company=wells-fargo');
+
+    cy.get('input[formcontrolname="name"]').type('Jane Doe');
+    cy.get('input[formcontrolname="email"]').type('jane@example.com');
+    cy.get('input[formcontrolname="password"]').type('secret123');
+    cy.contains('button', 'Create Account').click();
+
+    cy.wait('@registerRequest');
+    cy.contains('email already exists for this tenant').should('be.visible');
+    cy.location('pathname').should('eq', '/register');
+    cy.location('search').should('include', 'company=wells-fargo');
+  });
+
+  it('redirects protected dashboard routes to tenant-aware login when no session exists', () => {
+    cy.visit('/dashboard?company=chase-bank');
+
+    cy.location('pathname').should('eq', '/login');
+    cy.location('search').should('include', 'company=chase-bank');
+    cy.contains('Signing in for tenant').should('contain.text', 'chase-bank');
+  });
+
+  it('clears the tenant session and keeps tenant context on logout', () => {
+    cy.visit('/login?company=capital-one', {
+      onBeforeLoad(window) {
+        window.localStorage.setItem('cardflex_sessions', JSON.stringify({ 'capital-one': 'mock-jwt' }));
+      }
+    });
+
+    cy.contains('a', 'Dashboard').should('have.attr', 'href').and('include', 'company=capital-one');
+    cy.contains('button', 'Logout').click();
+
+    cy.location('pathname').should('eq', '/login');
+    cy.location('search').should('include', 'company=capital-one');
+    cy.window()
+      .its('localStorage.cardflex_sessions')
+      .then((storedSessions) => {
+        expect(JSON.parse(storedSessions as string)).to.deep.equal({});
+      });
+    cy.contains('Signing in for tenant').should('contain.text', 'capital-one');
+  });
 });
