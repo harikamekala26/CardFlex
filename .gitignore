@@ -11,3 +11,7 @@ frontend/.angular/cache/
 frontend/dist/
 backend/.gocache/
 backend/.gomodcache/
+backend/cardflex-backend
+backend/cardflex.db
+backend/cardflex.db-*
+backend/*.db
