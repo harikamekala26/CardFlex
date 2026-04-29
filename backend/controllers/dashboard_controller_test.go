@@ -77,7 +77,8 @@ func TestGetDashboardReturnsTenantScopedData(t *testing.T) {
 			CompanyCode string `json:"companyCode"`
 			ThemeColor  string `json:"themeColor"`
 		} `json:"tenant"`
-		Card struct {
+		Features map[string]bool `json:"features"`
+		Card     struct {
 			MaskedCardNumber string  `json:"maskedCardNumber"`
 			CreditLimit      float64 `json:"creditLimit"`
 			AvailableBalance float64 `json:"availableBalance"`
@@ -99,6 +100,12 @@ func TestGetDashboardReturnsTenantScopedData(t *testing.T) {
 	}
 	if response.Tenant.Name != tenant.Name {
 		t.Fatalf("expected tenant name %q, got %q", tenant.Name, response.Tenant.Name)
+	}
+	if !response.Features["paymentsEnabled"] {
+		t.Fatal("expected paymentsEnabled feature to be true")
+	}
+	if !response.Features["profileEnabled"] {
+		t.Fatal("expected profileEnabled feature to be true")
 	}
 	if response.Card.MaskedCardNumber == "" {
 		t.Fatal("expected masked card number in dashboard response")
@@ -267,6 +274,10 @@ func setupControllerTenantDB(t *testing.T) (*gorm.DB, models.Tenant, models.User
 		Name:        "Acme Card",
 		CompanyCode: "acme",
 		ThemeColor:  "#0B6E4F",
+		Features: models.FeatureFlags{
+			"payments_enabled": true,
+			"profile_enabled":  true,
+		},
 	}
 	if err := db.Create(&tenant).Error; err != nil {
 		t.Fatalf("failed to seed tenant: %v", err)

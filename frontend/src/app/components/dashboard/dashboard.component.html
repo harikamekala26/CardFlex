@@ -87,7 +87,12 @@
       </div>
 
       <div class="section-actions">
-        <a class="ghost-button" [routerLink]="['/payment']" [queryParams]="{ company: companyCode ?? undefined }">
+        <a
+          *ngIf="paymentsEnabled"
+          class="ghost-button"
+          [routerLink]="['/payment']"
+          [queryParams]="{ company: companyCode ?? undefined }"
+        >
           Make a Payment
         </a>
         <button type="button" class="ghost-button" (click)="reload()">Refresh</button>

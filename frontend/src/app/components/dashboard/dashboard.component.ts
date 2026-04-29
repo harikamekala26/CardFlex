@@ -58,6 +58,10 @@ export class DashboardComponent implements OnInit {
     return (this.data?.transactions.length ?? 0) > 0;
   }
 
+  get paymentsEnabled(): boolean {
+    return this.data?.features.paymentsEnabled !== false;
+  }
+
   get spendingSummary(): SpendingSummaryItem[] {
     const transactions = this.data?.transactions ?? [];
     const monthlySpending = new Map<string, { date: Date; amount: number }>();

@@ -102,6 +102,23 @@ describe('DashboardComponent', () => {
     expect(paymentLink?.injector.get(RouterLink).queryParams).toEqual({ company: 'acme' });
   });
 
+  it('hides the payment link when tenant payments are disabled', () => {
+    spyOn(authService, 'getDashboard').and.returnValue(
+      of({
+        ...accountSummaryResponse,
+        features: {
+          paymentsEnabled: false,
+          profileEnabled: true
+        }
+      })
+    );
+
+    fixture.detectChanges();
+
+    expect(component.paymentsEnabled).toBeFalse();
+    expect(fixture.nativeElement.textContent).not.toContain('Make a Payment');
+  });
+
   it('renders a monthly spending chart from dashboard transactions', () => {
     fixture.detectChanges();
 

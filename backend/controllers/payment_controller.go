@@ -20,11 +20,11 @@ type paymentRequest struct {
 }
 
 type paymentResponse struct {
-	Message          string  `json:"message"`
-	UpdatedBalance   float64 `json:"updatedBalance"`
-	TransactionID    uint    `json:"transactionId"`
-	Amount           float64 `json:"amount"`
-	Timestamp        string  `json:"timestamp"`
+	Message        string  `json:"message"`
+	UpdatedBalance float64 `json:"updatedBalance"`
+	TransactionID  uint    `json:"transactionId"`
+	Amount         float64 `json:"amount"`
+	Timestamp      string  `json:"timestamp"`
 }
 
 func (p *PaymentController) RecordPayment(c *gin.Context) {
@@ -62,6 +62,10 @@ func (p *PaymentController) RecordPayment(c *gin.Context) {
 	userID, err := strconv.ParseUint(claims.UserID, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token user"})
+		return
+	}
+	if !tenant.Features.Enabled("payments_enabled") {
+		c.JSON(http.StatusForbidden, gin.H{"error": "payments are disabled for this tenant"})
 		return
 	}
 

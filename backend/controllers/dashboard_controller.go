@@ -87,6 +87,7 @@ func (d *DashboardController) GetDashboard(c *gin.Context) {
 			"companyCode": tenant.CompanyCode,
 			"themeColor":  tenant.ThemeColor,
 		},
+		"features": tenant.Features.ToCamelCaseMap(),
 		"card": gin.H{
 			"maskedCardNumber": account.MaskedCardNumber,
 			"creditLimit":      account.CreditLimit,
