@@ -34,7 +34,10 @@ func RegisterRoutes(
 	)
 	{
 		protected.GET("/dashboard", dashboardController.GetDashboard)
-		
+
+		profileController := &controllers.ProfileController{DB: db}
+		protected.GET("/profile", profileController.GetProfile)
+
 		paymentController := &controllers.PaymentController{DB: db}
 		protected.POST("/payment", paymentController.RecordPayment)
 	}
