@@ -155,8 +155,18 @@ h4 {
   line-height: 1.55;
 }
 
+.section-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .ghost-button,
 .state-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid rgba(15, 23, 42, 0.12);
   background: #ffffff;
   color: #0f172a;
@@ -345,6 +355,10 @@ td {
   .section-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .section-actions {
+    justify-content: flex-start;
   }
 }
 

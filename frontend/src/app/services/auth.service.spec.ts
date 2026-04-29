@@ -77,6 +77,25 @@ describe('AuthService', () => {
     });
   });
 
+  it('calls payment with the company query parameter and amount body', () => {
+    service.makePayment(125.5, 'acme').subscribe();
+
+    const request = httpMock.expectOne(
+      (req) => req.url === `${environment.apiBaseUrl}/payment` && req.params.get('company') === 'acme'
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ amount: 125.5 });
+
+    request.flush({
+      message: 'payment recorded successfully',
+      updatedBalance: 8124.5,
+      transactionId: 42,
+      amount: 125.5,
+      timestamp: '2026-04-29T10:00:00Z'
+    });
+  });
+
   it('stores and reads tenant-scoped sessions', () => {
     service.setSession('wells-fargo', 'tenant-token');
 
@@ -87,11 +106,13 @@ describe('AuthService', () => {
 
   it('maps backend validation errors into readable errors', () => {
     let errorMessage = '';
+    let errorStatus: number | undefined;
 
     service.login({ email: 'jane@example.com', password: 'secret123' }, 'wells-fargo').subscribe({
       next: () => fail('expected login to fail'),
-      error: (error: Error) => {
+      error: (error: Error & { status?: number }) => {
         errorMessage = error.message;
+        errorStatus = error.status;
       }
     });
 
@@ -101,6 +122,7 @@ describe('AuthService', () => {
     request.flush({ error: 'invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(errorMessage).toBe('invalid credentials');
+    expect(errorStatus).toBe(401);
   });
 
   it('maps network failures into a backend unavailable message', () => {

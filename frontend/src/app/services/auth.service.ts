@@ -3,12 +3,19 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Observable, catchError, throwError } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../models/auth.model';
+import { LoginRequest, LoginResponse, PaymentResponse, RegisterRequest, RegisterResponse } from '../models/auth.model';
 import { DashboardApiResponse } from '../models/dashboard.model';
 
 interface TenantSession {
   companyCode: string;
   token: string;
+}
+
+export class ApiError extends Error {
+  constructor(message: string, readonly status?: number) {
+    super(message);
+    this.name = 'ApiError';
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -40,6 +47,13 @@ export class AuthService {
     return this.http
       .get<DashboardApiResponse>(`${this.apiBaseUrl}/dashboard`, { params })
       .pipe(catchError((error) => this.handleApiError(error, 'Unable to load dashboard data.')));
+  }
+
+  makePayment(amount: number, companyCode: string): Observable<PaymentResponse> {
+    const params = new HttpParams().set('company', companyCode);
+    return this.http
+      .post<PaymentResponse>(`${this.apiBaseUrl}/payment`, { amount }, { params })
+      .pipe(catchError((error) => this.handleApiError(error, 'Unable to submit payment.')));
   }
 
   setSession(companyCode: string, token: string): void {
@@ -97,16 +111,18 @@ export class AuthService {
   private handleApiError(error: unknown, fallbackMessage: string): Observable<never> {
     if (error instanceof HttpErrorResponse) {
       if (typeof error.error?.error === 'string' && error.error.error.trim()) {
-        return throwError(() => new Error(error.error.error));
+        return throwError(() => new ApiError(error.error.error, error.status));
       }
 
       if (typeof error.error?.message === 'string' && error.error.message.trim()) {
-        return throwError(() => new Error(error.error.message));
+        return throwError(() => new ApiError(error.error.message, error.status));
       }
 
       if (error.status === 0) {
-        return throwError(() => new Error('Backend is unreachable. Verify the API server and base URL.'));
+        return throwError(() => new ApiError('Backend is unreachable. Verify the API server and base URL.', error.status));
       }
+
+      return throwError(() => new ApiError(fallbackMessage, error.status));
     }
 
     return throwError(() => new Error(fallbackMessage));

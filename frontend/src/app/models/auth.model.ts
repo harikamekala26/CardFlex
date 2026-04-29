@@ -17,3 +17,15 @@ export interface LoginResponse {
   token?: string;
   message?: string;
 }
+
+export interface PaymentRequest {
+  amount: number;
+}
+
+export interface PaymentResponse {
+  message: string;
+  updatedBalance: number;
+  transactionId: number;
+  amount: number;
+  timestamp: string;
+}
