@@ -86,7 +86,12 @@
         <p class="section-copy">Latest posted and pending activity for this tenant account.</p>
       </div>
 
-      <button type="button" class="ghost-button" (click)="reload()">Refresh</button>
+      <div class="section-actions">
+        <a class="ghost-button" [routerLink]="['/payment']" [queryParams]="{ company: companyCode ?? undefined }">
+          Make a Payment
+        </a>
+        <button type="button" class="ghost-button" (click)="reload()">Refresh</button>
+      </div>
     </div>
 
     <div class="table-wrap" *ngIf="hasTransactions; else emptyTransactions">

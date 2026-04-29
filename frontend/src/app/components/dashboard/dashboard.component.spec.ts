@@ -92,6 +92,16 @@ describe('DashboardComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Grocery Mart');
   });
 
+  it('links to the payment page with the active tenant company', () => {
+    fixture.detectChanges();
+
+    const paymentLink = fixture.debugElement
+      .queryAll(By.css('a'))
+      .find((element) => element.nativeElement.textContent.includes('Make a Payment'));
+
+    expect(paymentLink?.injector.get(RouterLink).queryParams).toEqual({ company: 'acme' });
+  });
+
   it('renders a monthly spending chart from dashboard transactions', () => {
     fixture.detectChanges();
 

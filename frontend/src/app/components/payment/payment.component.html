@@ -1,0 +1,46 @@
+<section class="payment-shell">
+  <article class="payment-info">
+    <p class="eyebrow">Make a Payment</p>
+    <h2>Submit a card payment</h2>
+    <p class="description">
+      Pay down the current card balance for your tenant account. The dashboard will refresh after the payment is recorded.
+    </p>
+
+    <div class="tenant-chip" *ngIf="companyCode; else missingTenant">
+      Paying for tenant <strong>{{ companyCode }}</strong>
+    </div>
+    <ng-template #missingTenant>
+      <div class="tenant-chip warning">Tenant company code is missing from the URL.</div>
+    </ng-template>
+  </article>
+
+  <article class="form-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <label>
+        <span>Payment Amount</span>
+        <input
+          formControlName="amount"
+          type="number"
+          min="0.01"
+          step="0.01"
+          inputmode="decimal"
+          placeholder="100.00"
+          [class.input-error]="showAmountError()"
+        />
+        <small class="field-hint" *ngIf="!showAmountError()">Enter the amount you want to pay today.</small>
+        <small class="field-error" *ngIf="showAmountError()">{{ getAmountError() }}</small>
+      </label>
+
+      <button type="submit" [disabled]="submitting">
+        {{ submitting ? 'Submitting payment...' : 'Submit Payment' }}
+      </button>
+    </form>
+
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+
+    <a class="dashboard-link" [routerLink]="['/dashboard']" [queryParams]="{ company: companyCode ?? undefined }">
+      Back to dashboard
+    </a>
+  </article>
+</section>
