@@ -5,6 +5,7 @@
 
 .dashboard-hero,
 .transactions-panel,
+.spending-panel,
 .state-card {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(148, 163, 184, 0.16);
@@ -135,6 +136,7 @@ h4 {
 }
 
 .transactions-panel,
+.spending-panel,
 .state-card {
   padding: 24px;
 }
@@ -166,6 +168,78 @@ h4 {
 
 .table-wrap {
   overflow-x: auto;
+}
+
+.spending-chart {
+  min-height: 260px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(96px, 1fr);
+  align-items: end;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 14px 4px 4px;
+}
+
+.spending-bar {
+  --bar-height: 0%;
+  min-width: 96px;
+  height: 220px;
+  display: grid;
+  grid-template-rows: 28px 1fr 24px;
+  gap: 8px;
+  justify-items: center;
+  align-items: end;
+}
+
+.bar-value,
+.bar-label {
+  color: #334155;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.bar-value {
+  font-size: 0.88rem;
+}
+
+.bar-label {
+  font-size: 0.8rem;
+}
+
+.bar-track {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: #e2e8f0;
+  display: flex;
+  align-items: end;
+  overflow: hidden;
+}
+
+.bar-fill {
+  width: 100%;
+  min-height: 8px;
+  height: var(--bar-height);
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, var(--tenant-color), var(--tenant-secondary-color));
+  box-shadow: 0 -10px 24px color-mix(in srgb, var(--tenant-color) 20%, transparent);
+}
+
+.chart-empty-state {
+  min-height: 180px;
+  border: 1px dashed color-mix(in srgb, var(--tenant-color) 35%, #cbd5e1);
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--tenant-color) 5%, white);
+}
+
+.chart-empty-state p {
+  margin: 0;
+  color: #475569;
+  font-weight: 700;
 }
 
 .empty-state-card {
@@ -277,6 +351,7 @@ td {
 @media (max-width: 640px) {
   .dashboard-hero,
   .transactions-panel,
+  .spending-panel,
   .state-card {
     padding: 20px;
   }
