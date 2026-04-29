@@ -6,6 +6,12 @@ import { AuthService } from '../../services/auth.service';
 import { TenantService } from '../../services/tenant.service';
 import { DashboardData, DashboardTransaction, normalizeDashboardData } from '../../models/dashboard.model';
 
+interface SpendingSummaryItem {
+  month: string;
+  amount: number;
+  percent: number;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -52,8 +58,43 @@ export class DashboardComponent implements OnInit {
     return (this.data?.transactions.length ?? 0) > 0;
   }
 
+  get spendingSummary(): SpendingSummaryItem[] {
+    const transactions = this.data?.transactions ?? [];
+    const monthlySpending = new Map<string, { date: Date; amount: number }>();
+
+    for (const transaction of transactions) {
+      const date = new Date(transaction.date);
+
+      if (Number.isNaN(date.getTime())) {
+        continue;
+      }
+
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const existing = monthlySpending.get(monthKey);
+      const spendAmount = Math.abs(transaction.amount);
+
+      monthlySpending.set(monthKey, {
+        date: existing?.date ?? new Date(date.getFullYear(), date.getMonth(), 1),
+        amount: (existing?.amount ?? 0) + spendAmount
+      });
+    }
+
+    const items = Array.from(monthlySpending.values()).sort((first, second) => first.date.getTime() - second.date.getTime());
+    const maxAmount = Math.max(...items.map((item) => item.amount), 0);
+
+    return items.map((item) => ({
+      month: item.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      amount: item.amount,
+      percent: maxAmount > 0 ? Math.round((item.amount / maxAmount) * 100) : 0
+    }));
+  }
+
   trackTransaction(_: number, transaction: DashboardTransaction): string {
     return `${transaction.date}-${transaction.merchant}-${transaction.amount}`;
+  }
+
+  trackSpendingMonth(_: number, item: SpendingSummaryItem): string {
+    return item.month;
   }
 
   reload(): void {

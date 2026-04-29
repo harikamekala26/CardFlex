@@ -38,6 +38,18 @@ describe('DashboardComponent', () => {
         merchant: 'Grocery Mart',
         amount: -82.41,
         status: 'Posted'
+      },
+      {
+        date: '2026-02-20',
+        merchant: 'Coffee Stand',
+        amount: -17.59,
+        status: 'Posted'
+      },
+      {
+        date: '2026-03-03',
+        merchant: 'Payment',
+        amount: 50,
+        status: 'Posted'
       }
     ]
   };
@@ -80,6 +92,19 @@ describe('DashboardComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Grocery Mart');
   });
 
+  it('renders a monthly spending chart from dashboard transactions', () => {
+    fixture.detectChanges();
+
+    expect(component.spendingSummary).toEqual([
+      { month: 'Feb 2026', amount: 100, percent: 100 },
+      { month: 'Mar 2026', amount: 50, percent: 50 }
+    ]);
+    expect(fixture.nativeElement.textContent).toContain('Monthly Transaction Volume');
+    expect(fixture.nativeElement.textContent).toContain('Feb 2026');
+    expect(fixture.nativeElement.textContent).toContain('Mar 2026');
+    expect(fixture.debugElement.queryAll(By.css('.spending-bar')).length).toBe(2);
+  });
+
   it('shows a loading state while the dashboard request is in flight', () => {
     spyOn(authService, 'getDashboard').and.returnValue(new Observable());
 
@@ -102,7 +127,7 @@ describe('DashboardComponent', () => {
     fixture.detectChanges();
 
     expect(component.data?.accountSummary.creditLimit).toBe(12000);
-    expect(component.data?.transactions.length).toBe(1);
+    expect(component.data?.transactions).toEqual(accountSummaryResponse.transactions);
     expect(fixture.nativeElement.textContent).toContain('Grocery Mart');
   });
 
@@ -117,6 +142,8 @@ describe('DashboardComponent', () => {
     fixture.detectChanges();
 
     expect(component.hasTransactions).toBeFalse();
+    expect(component.spendingSummary).toEqual([]);
+    expect(fixture.nativeElement.textContent).toContain('No transactions to display');
     expect(fixture.nativeElement.textContent).toContain('No transactions available');
     expect(fixture.nativeElement.textContent).not.toContain('Grocery Mart');
   });
