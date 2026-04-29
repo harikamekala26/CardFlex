@@ -85,7 +85,14 @@ func (a *AuthController) Register(c *gin.Context) {
 		TenantID: tenant.ID,
 	}
 
-	if err := a.DB.Create(&user).Error; err != nil {
+	if err := a.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&user).Error; err != nil {
+			return err
+		}
+
+		account := defaultAccountForUser(user.ID, tenant.ID)
+		return tx.Create(&account).Error
+	}); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 		return
 	}
@@ -100,6 +107,17 @@ func (a *AuthController) Register(c *gin.Context) {
 			"companyCode": tenant.CompanyCode,
 		},
 	})
+}
+
+func defaultAccountForUser(userID uint, tenantID uint) models.Account {
+	return models.Account{
+		UserID:           userID,
+		TenantID:         tenantID,
+		MaskedCardNumber: "**** **** **** 0000",
+		CreditLimit:      5000,
+		AvailableBalance: 5000,
+		Currency:         "USD",
+	}
 }
 
 func (a *AuthController) resolveRegisterTenant(c *gin.Context, req registerRequest) (models.Tenant, error) {
@@ -158,6 +176,10 @@ func (a *AuthController) Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
+	if err := a.ensureAccountForUser(user.ID, tenant.ID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to initialize account"})
+		return
+	}
 
 	token, err := utils.GenerateToken(
 		strconv.FormatUint(uint64(user.ID), 10),
@@ -173,4 +195,12 @@ func (a *AuthController) Login(c *gin.Context) {
 		"message": "user logged in",
 		"token":   token,
 	})
+}
+
+func (a *AuthController) ensureAccountForUser(userID uint, tenantID uint) error {
+	account := defaultAccountForUser(userID, tenantID)
+	return a.DB.
+		Where(models.Account{UserID: userID, TenantID: tenantID}).
+		Attrs(account).
+		FirstOrCreate(&account).Error
 }

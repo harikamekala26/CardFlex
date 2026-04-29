@@ -24,7 +24,7 @@ func TestRegisterReturnsDummyResponseForTenant(t *testing.T) {
 		t.Fatalf("failed to open sqlite database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}, &models.Account{}); err != nil {
 		t.Fatalf("failed to migrate schema: %v", err)
 	}
 
@@ -100,6 +100,17 @@ func TestRegisterReturnsDummyResponseForTenant(t *testing.T) {
 	if err := bcrypt.CompareHashAndPassword([]byte(inserted.Password), []byte("secret123")); err != nil {
 		t.Fatalf("stored hash does not match original password: %v", err)
 	}
+
+	var account models.Account
+	if err := db.Where("tenant_id = ? AND user_id = ?", tenant.ID, inserted.ID).First(&account).Error; err != nil {
+		t.Fatalf("expected registered user account, got error: %v", err)
+	}
+	if account.MaskedCardNumber != "**** **** **** 0000" {
+		t.Fatalf("expected default masked card number, got %q", account.MaskedCardNumber)
+	}
+	if account.CreditLimit != 5000 || account.AvailableBalance != 5000 {
+		t.Fatalf("expected default account balances to be 5000/5000, got %v/%v", account.CreditLimit, account.AvailableBalance)
+	}
 }
 
 func TestRegisterSupportsCompanyQueryFallback(t *testing.T) {
@@ -108,7 +119,7 @@ func TestRegisterSupportsCompanyQueryFallback(t *testing.T) {
 		t.Fatalf("failed to open sqlite database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}, &models.Account{}); err != nil {
 		t.Fatalf("failed to migrate schema: %v", err)
 	}
 
@@ -147,7 +158,7 @@ func TestRegisterRejectsDuplicateEmailForTenant(t *testing.T) {
 		t.Fatalf("failed to open sqlite database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}, &models.Account{}); err != nil {
 		t.Fatalf("failed to migrate schema: %v", err)
 	}
 
@@ -200,7 +211,7 @@ func TestRegisterRequiresTenantIdentifier(t *testing.T) {
 		t.Fatalf("failed to open sqlite database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}, &models.Account{}); err != nil {
 		t.Fatalf("failed to migrate schema: %v", err)
 	}
 
@@ -230,7 +241,7 @@ func TestLoginReturnsDummyResponseForTenant(t *testing.T) {
 		t.Fatalf("failed to open sqlite database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.Tenant{}, &models.User{}, &models.Account{}); err != nil {
 		t.Fatalf("failed to migrate schema: %v", err)
 	}
 
@@ -305,6 +316,14 @@ func TestLoginReturnsDummyResponseForTenant(t *testing.T) {
 	}
 	if claims.TenantID != strconv.FormatUint(uint64(tenant.ID), 10) {
 		t.Fatalf("expected tenant id claim %d, got %s", tenant.ID, claims.TenantID)
+	}
+
+	var account models.Account
+	if err := db.Where("tenant_id = ? AND user_id = ?", tenant.ID, user.ID).First(&account).Error; err != nil {
+		t.Fatalf("expected login to initialize missing account, got error: %v", err)
+	}
+	if account.AvailableBalance != 5000 {
+		t.Fatalf("expected default account available balance 5000, got %v", account.AvailableBalance)
 	}
 }
 

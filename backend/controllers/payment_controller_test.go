@@ -38,6 +38,9 @@ func TestRecordPayment_Success(t *testing.T) {
 		ID:          1,
 		CompanyCode: "TEST",
 		Name:        "Test Company",
+		Features: models.FeatureFlags{
+			"payments_enabled": true,
+		},
 	}
 	db.Create(&tenant)
 
@@ -108,6 +111,9 @@ func TestRecordPayment_InvalidAmount(t *testing.T) {
 		ID:          1,
 		CompanyCode: "TEST",
 		Name:        "Test Company",
+		Features: models.FeatureFlags{
+			"payments_enabled": true,
+		},
 	}
 	db.Create(&tenant)
 
@@ -160,6 +166,9 @@ func TestRecordPayment_ExceedsBalance(t *testing.T) {
 		ID:          1,
 		CompanyCode: "TEST",
 		Name:        "Test Company",
+		Features: models.FeatureFlags{
+			"payments_enabled": true,
+		},
 	}
 	db.Create(&tenant)
 
@@ -212,6 +221,9 @@ func TestRecordPayment_AccountNotFound(t *testing.T) {
 		ID:          1,
 		CompanyCode: "TEST",
 		Name:        "Test Company",
+		Features: models.FeatureFlags{
+			"payments_enabled": true,
+		},
 	}
 	db.Create(&tenant)
 
@@ -266,6 +278,9 @@ func TestRecordPayment_MissingClaims(t *testing.T) {
 		ID:          1,
 		CompanyCode: "TEST",
 		Name:        "Test Company",
+		Features: models.FeatureFlags{
+			"payments_enabled": true,
+		},
 	}
 	db.Create(&tenant)
 
@@ -285,4 +300,36 @@ func TestRecordPayment_MissingClaims(t *testing.T) {
 
 	// Assertions
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func TestRecordPayment_PaymentsDisabled(t *testing.T) {
+	db := setupPaymentTestDB(t)
+	controller := &PaymentController{DB: db}
+
+	tenant := models.Tenant{
+		ID:          1,
+		CompanyCode: "TEST",
+		Name:        "Test Company",
+		Features: models.FeatureFlags{
+			"payments_enabled": false,
+		},
+	}
+	db.Create(&tenant)
+
+	payload := paymentRequest{Amount: 500}
+	body, _ := json.Marshal(payload)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("POST", "/payment", bytes.NewBuffer(body))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	claims := &utils.Claims{UserID: "1"}
+	c.Set("tenant", tenant)
+	c.Set("claims", claims)
+
+	controller.RecordPayment(c)
+
+	assert.Equal(t, http.StatusForbidden, w.Code)
+	assert.JSONEq(t, `{"error":"payments are disabled for this tenant"}`, w.Body.String())
 }

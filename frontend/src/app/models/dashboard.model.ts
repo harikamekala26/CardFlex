@@ -18,16 +18,24 @@ export interface DashboardTransaction {
   status: string;
 }
 
+export interface DashboardFeatures {
+  paymentsEnabled?: boolean;
+  profileEnabled?: boolean;
+  [feature: string]: boolean | undefined;
+}
+
 export interface DashboardApiResponse {
   tenant: DashboardTenant;
   accountSummary?: DashboardAccountSummary | null;
   card?: DashboardAccountSummary | null;
+  features?: DashboardFeatures | null;
   transactions: DashboardTransaction[];
 }
 
 export interface DashboardData {
   tenant: DashboardTenant;
   accountSummary: DashboardAccountSummary;
+  features: DashboardFeatures;
   transactions: DashboardTransaction[];
 }
 
@@ -35,6 +43,7 @@ export function normalizeDashboardData(response: DashboardApiResponse): Dashboar
   return {
     tenant: response.tenant,
     accountSummary: response.accountSummary ?? response.card ?? createEmptyAccountSummary(),
+    features: response.features ?? {},
     transactions: response.transactions ?? []
   };
 }
