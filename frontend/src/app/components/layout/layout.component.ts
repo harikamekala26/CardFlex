@@ -52,6 +52,10 @@ export class LayoutComponent implements OnInit {
     return this.authService.isAuthenticated(this.companyCode);
   }
 
+  get profileEnabled(): boolean {
+    return this.tenantService.isFeatureEnabled('profileEnabled');
+  }
+
   logout(): void {
     this.authService.logout(this.companyCode);
     this.router.navigate(['/login'], {

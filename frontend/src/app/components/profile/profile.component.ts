@@ -74,7 +74,7 @@ export class ProfileComponent implements OnInit {
               : 'Failed to load profile';
         this.errorMessage = message;
 
-        if (status === 401 || status === 403) {
+        if (status === 401) {
           this.authService.logout(company);
           void this.router.navigate(['/login'], {
             queryParams: { company }

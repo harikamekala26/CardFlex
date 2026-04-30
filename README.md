@@ -33,8 +33,9 @@ CardFlex provides a single, multi-tenant platform where:
 - Dashboard account summary and transaction history loaded from the backend database.
 - Tenant feature flags returned by the dashboard API.
 - Payment UI hidden when a tenant has payments disabled.
+- Profile navigation hidden when a tenant has profiles disabled.
 - Payment submission with validation, balance updates, and transaction creation.
-- Profile retrieval for the authenticated tenant user.
+- Profile retrieval for the authenticated tenant user when enabled for that tenant.
 - Default account creation for new registered users.
 - Login-time account backfill for existing users missing an account.
 
@@ -349,6 +350,7 @@ Common errors:
 ### `GET /profile?company=<company-code>`
 
 Returns the authenticated user's profile for the active tenant.
+The tenant must have `profile_enabled` set to `true`; disabled profile tenants receive `403 Forbidden`.
 
 Required header:
 
@@ -369,7 +371,7 @@ Common errors:
 
 - `400 Bad Request`: missing `company` query parameter
 - `401 Unauthorized`: missing or invalid JWT
-- `403 Forbidden`: token tenant mismatch
+- `403 Forbidden`: token tenant mismatch or tenant profiles are disabled
 - `404 Not Found`: tenant or user not found
 - `500 Internal Server Error`: database is unavailable or the user cannot be loaded
 

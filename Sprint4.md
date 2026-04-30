@@ -21,6 +21,7 @@ The main Sprint 4 outcomes were:
 
 - Added dashboard support for the backend `features` response.
 - Hid the dashboard payment action when `paymentsEnabled` is false for the tenant.
+- Hid profile navigation and blocked profile API access when `profileEnabled` is false for the tenant.
 - Maintained payment component support for submitting payments through the backend API.
 - Added and maintained frontend unit tests for dashboard, payment, layout, auth, tenant services, auth interceptor, login, register, and home components.
 - Maintained Cypress coverage for tenant-aware authentication and protected-route flows.
@@ -31,6 +32,7 @@ The main Sprint 4 outcomes were:
 - Seeded example feature configurations for `chase-bank`, `capital-one`, and `wells-fargo`.
 - Updated `GET /dashboard` to return a `features` map so the frontend can show or hide feature-specific UI.
 - Added payment feature gating so `POST /payment` returns `403 Forbidden` when `payments_enabled` is false for the tenant.
+- Added profile feature gating so `GET /profile` returns `403 Forbidden` when `profile_enabled` is false for the tenant.
 - Implemented account initialization for newly registered users so the dashboard can load immediately after registration.
 - Added login-time account backfill for existing users who were created before account initialization existed.
 - Added and expanded backend unit tests for payment, profile, dashboard, auth, middleware, and migrations.
@@ -49,6 +51,10 @@ The dashboard consumes the backend feature map and uses it to conditionally show
 #### Payment UI Gating
 
 The dashboard payment link is displayed only when the active tenant has `paymentsEnabled` set to true. This prevents users from entering the payment workflow when the backend has disabled payments for that issuer.
+
+#### Profile UI Gating
+
+The layout profile link is displayed only when the active tenant has `profileEnabled` set to true. This keeps tenants such as `capital-one` from advertising profile access when the backend has disabled profiles for that issuer.
 
 #### Payment Flow UI
 
@@ -109,7 +115,7 @@ The protected `GET /profile` endpoint returns the authenticated user's profile f
 }
 ```
 
-The endpoint validates tenant context, JWT authentication, token tenant match, and user existence.
+The endpoint validates tenant context, JWT authentication, token tenant match, the `profile_enabled` feature flag, and user existence.
 
 #### Account Initialization
 
@@ -142,6 +148,7 @@ Important Sprint 4 frontend coverage includes:
 - dashboard loading, empty, and error states
 - tenant-aware dashboard and payment links
 - hidden payment action when tenant payments are disabled
+- hidden profile navigation when tenant profiles are disabled
 - payment form rendering
 - payment validation and submission
 - payment error display
@@ -281,6 +288,7 @@ Tests:
 - `TestGetProfileRequiresValidJWT`
 - `TestGetProfileRejectsInvalidJWT`
 - `TestGetProfileRejectsTenantMismatch`
+- `TestGetProfileRejectsDisabledProfileFeature`
 - `TestGetProfileReturnsNotFoundWhenTenantMissing`
 - `TestGetProfileReturnsNotFoundWhenUserMissing`
 - `TestGetProfileRejectsInvalidUserIDClaim`
@@ -293,6 +301,7 @@ Coverage:
 - missing JWT
 - invalid JWT
 - token tenant mismatch
+- disabled profile feature flag
 - missing tenant
 - missing user
 - malformed user ID claim
@@ -357,6 +366,7 @@ Sprint 4 documentation updates include:
 - required `Authorization: Bearer <jwt>` headers for protected endpoints
 - dashboard `features` response shape
 - profile request and response documentation
+- profile feature-flag gating behavior
 - payment request and response documentation
 - payment feature-flag gating behavior
 - common error codes for profile and payment

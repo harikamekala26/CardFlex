@@ -1,6 +1,11 @@
 export interface Tenant {
   companyCode: string;
   name: string;
+  features?: {
+    paymentsEnabled?: boolean;
+    profileEnabled?: boolean;
+    [feature: string]: boolean | undefined;
+  };
   theme: {
     primaryColor: string;
     secondaryColor: string;

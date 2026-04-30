@@ -31,4 +31,11 @@ describe('TenantService', () => {
     expect(service.getTenant()).toBeNull();
     expect(service.getResolvedTenant()).toEqual(DEFAULT_TENANT);
   });
+
+  it('reports tenant feature availability from tenant configuration', () => {
+    service.setFromCompanyCode('capital-one');
+
+    expect(service.isFeatureEnabled('paymentsEnabled')).toBeTrue();
+    expect(service.isFeatureEnabled('profileEnabled')).toBeFalse();
+  });
 });

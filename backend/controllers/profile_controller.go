@@ -31,6 +31,10 @@ func (p *ProfileController) GetProfile(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid tenant context"})
 		return
 	}
+	if !tenant.Features.Enabled("profile_enabled") {
+		c.JSON(http.StatusForbidden, gin.H{"error": "profiles are disabled for this tenant"})
+		return
+	}
 
 	claimsRaw, ok := c.Get("claims")
 	if !ok {

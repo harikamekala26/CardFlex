@@ -3,6 +3,10 @@ import { Tenant } from '../models/tenant.model';
 export const DEFAULT_TENANT: Tenant = {
   companyCode: 'cardflex',
   name: 'CardFlex',
+  features: {
+    paymentsEnabled: true,
+    profileEnabled: true
+  },
   theme: {
     primaryColor: '#00539C',
     secondaryColor: '#8FB4D8',
@@ -22,6 +26,10 @@ export const TENANT_CONFIGS: Record<string, Tenant> = {
   'chase-bank': {
     companyCode: 'chase-bank',
     name: 'Chase Bank',
+    features: {
+      paymentsEnabled: true,
+      profileEnabled: true
+    },
     theme: {
       primaryColor: '#0A2A66',
       secondaryColor: '#2E8BC0',
@@ -39,6 +47,10 @@ export const TENANT_CONFIGS: Record<string, Tenant> = {
   'wells-fargo': {
     companyCode: 'wells-fargo',
     name: 'Wells Fargo',
+    features: {
+      paymentsEnabled: false,
+      profileEnabled: true
+    },
     theme: {
       primaryColor: '#B31B1B',
       secondaryColor: '#F2C94C',
@@ -56,6 +68,10 @@ export const TENANT_CONFIGS: Record<string, Tenant> = {
   'capital-one': {
     companyCode: 'capital-one',
     name: 'Capital One',
+    features: {
+      paymentsEnabled: true,
+      profileEnabled: false
+    },
     theme: {
       primaryColor: '#003B95',
       secondaryColor: '#D62728',

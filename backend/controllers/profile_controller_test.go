@@ -127,6 +127,26 @@ func TestGetProfileRejectsTenantMismatch(t *testing.T) {
 	}
 }
 
+func TestGetProfileRejectsDisabledProfileFeature(t *testing.T) {
+	db, tenant, user, _ := setupControllerTenantDB(t)
+	tenant.Features = models.FeatureFlags{
+		"payments_enabled": true,
+		"profile_enabled":  false,
+	}
+	if err := db.Save(&tenant).Error; err != nil {
+		t.Fatalf("failed to disable profile feature: %v", err)
+	}
+
+	res := performProfileRequest(t, db, tenant, user.ID, "acme", "test-secret", true)
+
+	if res.Code != http.StatusForbidden {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusForbidden, res.Code, res.Body.String())
+	}
+	if res.Body.String() != "{\"error\":\"profiles are disabled for this tenant\"}" {
+		t.Fatalf("expected disabled profile body, got %s", res.Body.String())
+	}
+}
+
 func TestGetProfileReturnsNotFoundWhenTenantMissing(t *testing.T) {
 	db, tenant, user, _ := setupControllerTenantDB(t)
 	res := performProfileRequest(t, db, tenant, user.ID, "missing", "test-secret", true)
