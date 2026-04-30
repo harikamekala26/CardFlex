@@ -57,25 +57,7 @@
       </div>
     </div>
 
-    <div class="spending-chart" *ngIf="hasTransactions; else noChartTransactions" aria-label="Monthly spending chart">
-      <div
-        class="spending-bar"
-        *ngFor="let item of spendingSummary; trackBy: trackSpendingMonth"
-        [style.--bar-height]="item.percent + '%'"
-      >
-        <span class="bar-value">{{ item.amount | currency:data.accountSummary.currency:'symbol':'1.0-0' }}</span>
-        <span class="bar-track">
-          <span class="bar-fill"></span>
-        </span>
-        <span class="bar-label">{{ item.month }}</span>
-      </div>
-    </div>
-
-    <ng-template #noChartTransactions>
-      <div class="chart-empty-state">
-        <p>No transactions to display</p>
-      </div>
-    </ng-template>
+    <app-spending-chart [transactions]="data.transactions" [currency]="data.accountSummary.currency"></app-spending-chart>
   </section>
 
   <section class="transactions-panel">
