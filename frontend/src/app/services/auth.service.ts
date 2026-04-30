@@ -3,7 +3,14 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Observable, catchError, throwError } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import { LoginRequest, LoginResponse, PaymentResponse, RegisterRequest, RegisterResponse } from '../models/auth.model';
+import {
+  LoginRequest,
+  LoginResponse,
+  PaymentResponse,
+  ProfileResponse,
+  RegisterRequest,
+  RegisterResponse
+} from '../models/auth.model';
 import { DashboardApiResponse } from '../models/dashboard.model';
 
 interface TenantSession {
@@ -47,6 +54,13 @@ export class AuthService {
     return this.http
       .get<DashboardApiResponse>(`${this.apiBaseUrl}/dashboard`, { params })
       .pipe(catchError((error) => this.handleApiError(error, 'Unable to load dashboard data.')));
+  }
+
+  getProfile(companyCode: string): Observable<ProfileResponse> {
+    const params = new HttpParams().set('company', companyCode);
+    return this.http
+      .get<ProfileResponse>(`${this.apiBaseUrl}/profile`, { params })
+      .pipe(catchError((error) => this.handleApiError(error, 'Unable to load profile data.')));
   }
 
   makePayment(amount: number, companyCode: string): Observable<PaymentResponse> {

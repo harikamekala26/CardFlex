@@ -77,6 +77,21 @@ describe('AuthService', () => {
     });
   });
 
+  it('calls profile with the company query parameter', () => {
+    service.getProfile('acme').subscribe();
+
+    const request = httpMock.expectOne(
+      (req) => req.url === `${environment.apiBaseUrl}/profile` && req.params.get('company') === 'acme'
+    );
+
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      name: 'Jane Doe',
+      email: 'jane@example.com'
+    });
+  });
+
   it('calls payment with the company query parameter and amount body', () => {
     service.makePayment(125.5, 'acme').subscribe();
 
