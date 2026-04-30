@@ -99,7 +99,7 @@ describe('LayoutComponent', () => {
     expect(linkTexts.find((link) => link.text === 'Dashboard')).toBeUndefined();
   });
 
-  it('shows the dashboard link for authenticated users and preserves tenant context on logout', () => {
+  it('shows authenticated links and preserves tenant context on logout', () => {
     spyOn(authService, 'isAuthenticated').and.returnValue(true);
     const logoutSpy = spyOn(authService, 'logout').and.callThrough();
     const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
@@ -112,6 +112,7 @@ describe('LayoutComponent', () => {
     }));
 
     expect(linkTexts.find((link) => link.text === 'Dashboard')?.params).toEqual({ company: 'chase-bank' });
+    expect(linkTexts.find((link) => link.text === 'Profile')?.params).toEqual({ company: 'chase-bank' });
 
     component.logout();
 

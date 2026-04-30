@@ -29,3 +29,8 @@ export interface PaymentResponse {
   amount: number;
   timestamp: string;
 }
+
+export interface ProfileResponse {
+  name: string;
+  email: string;
+}

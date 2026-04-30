@@ -1,0 +1,70 @@
+<section class="profile-shell">
+  <ng-container *ngIf="profile; else loadingOrError">
+    <article class="profile-hero">
+      <div class="identity-mark">
+        <img [src]="tenantLogo" [alt]="tenantName + ' logo'" />
+      </div>
+
+      <div>
+        <p class="eyebrow">Authenticated Profile</p>
+        <h2>{{ profile.name }}</h2>
+        <p class="profile-copy">
+          Your CardFlex profile for <strong>{{ tenantName }}</strong> is connected to this tenant workspace.
+        </p>
+      </div>
+    </article>
+
+    <section class="details-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Account Details</p>
+          <h3>Personal information</h3>
+        </div>
+
+        <button type="button" class="ghost-button" (click)="reload()">Refresh</button>
+      </div>
+
+      <dl class="profile-fields">
+        <div>
+          <dt>Name</dt>
+          <dd>{{ profile.name }}</dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd>{{ profile.email }}</dd>
+        </div>
+        <div>
+          <dt>Company</dt>
+          <dd>{{ tenantName }}</dd>
+        </div>
+      </dl>
+
+      <a class="dashboard-link" [routerLink]="['/dashboard']" [queryParams]="{ company: companyCode ?? undefined }">
+        Back to dashboard
+      </a>
+    </section>
+  </ng-container>
+</section>
+
+<ng-template #loadingOrError>
+  <section class="profile-state" *ngIf="loading">
+    <div class="state-card">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="eyebrow">Loading</p>
+      <h3>Loading your profile</h3>
+      <p>We are fetching your authenticated account details.</p>
+    </div>
+  </section>
+
+  <section class="profile-state" *ngIf="!loading && errorMessage">
+    <div class="state-card">
+      <p class="eyebrow">Profile Unavailable</p>
+      <h3>{{ errorMessage }}</h3>
+      <p>Try again, or return to the dashboard once your session and tenant are available.</p>
+      <div class="state-actions">
+        <button type="button" class="ghost-button" (click)="reload()">Try Again</button>
+        <a [routerLink]="['/dashboard']" [queryParams]="{ company: companyCode ?? undefined }">Back to Dashboard</a>
+      </div>
+    </div>
+  </section>
+</ng-template>
