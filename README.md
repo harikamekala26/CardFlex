@@ -76,19 +76,20 @@ http://localhost:4200/?company=wells-fargo
 
 - `POST /register` resolves the tenant from `tenantId` or `companyCode` in the JSON body.
 - `POST /register` also supports the legacy `?company=<company-code>` query parameter as a fallback.
-- `POST /login` and `GET /dashboard` require `?company=<company-code>` in the URL.
+- `POST /login`, `GET /dashboard`, `GET /profile`, and `POST /payment` require `?company=<company-code>` in the URL.
 
 ### Authentication
 
 - `POST /register` does not require a JWT.
 - `POST /login` does not require a JWT.
-- `GET /dashboard` requires both `?company=<company-code>` and an `Authorization: Bearer <jwt>` header.
+- `GET /dashboard`, `GET /profile`, and `POST /payment` require both `?company=<company-code>` and an `Authorization: Bearer <jwt>` header.
 - Successful login returns a JWT containing `userId` and `tenantId` claims.
 - A JWT can only access data for the tenant it was issued for.
 
 ### `POST /register`
 
 Creates a new user under a specific tenant.
+Registration also creates a default account for the new user so the dashboard can load immediately.
 
 Request body:
 
@@ -134,6 +135,7 @@ Common errors:
 ### `POST /login?company=<company-code>`
 
 Authenticates a user for a tenant and returns a JWT.
+If an existing user is missing an account, login initializes a default account before returning the token.
 
 Example request:
 
@@ -158,6 +160,7 @@ Common errors:
 - `400 Bad Request`: invalid email or short password
 - `401 Unauthorized`: invalid credentials
 - `404 Not Found`: tenant not found
+- `500 Internal Server Error`: account initialization or token generation failure
 
 ### `GET /dashboard?company=<company-code>`
 
@@ -177,6 +180,10 @@ Success response `200 OK`:
     "name": "Acme Card",
     "companyCode": "acme",
     "themeColor": "#0B6E4F"
+  },
+  "features": {
+    "paymentsEnabled": true,
+    "profileEnabled": true
   },
   "card": {
     "maskedCardNumber": "**** **** **** 4821",
@@ -200,7 +207,77 @@ Common errors:
 - `400 Bad Request`: missing `company` query parameter
 - `401 Unauthorized`: missing or invalid JWT
 - `403 Forbidden`: token tenant mismatch
-- `404 Not Found`: tenant not found
+- `404 Not Found`: tenant or account not found
+
+### `GET /profile?company=<company-code>`
+
+Returns the authenticated user's profile for the active tenant.
+
+Required header:
+
+```text
+Authorization: Bearer <jwt>
+```
+
+Success response `200 OK`:
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+```
+
+Common errors:
+
+- `400 Bad Request`: missing `company` query parameter
+- `401 Unauthorized`: missing or invalid JWT
+- `403 Forbidden`: token tenant mismatch
+- `404 Not Found`: tenant or user not found
+- `500 Internal Server Error`: database is unavailable or the user cannot be loaded
+
+### `POST /payment?company=<company-code>`
+
+Records a payment for the authenticated user's tenant account.
+The tenant must have `payments_enabled` set to `true`; disabled payment tenants receive `403 Forbidden`.
+
+Required header:
+
+```text
+Authorization: Bearer <jwt>
+```
+
+Request body:
+
+```json
+{
+  "amount": 250
+}
+```
+
+Request fields:
+
+- `amount`: required positive number that cannot exceed the account available balance
+
+Success response `200 OK`:
+
+```json
+{
+  "message": "payment recorded successfully",
+  "updatedBalance": 4750,
+  "transactionId": 12,
+  "amount": 250,
+  "timestamp": "2026-04-29T14:30:00Z"
+}
+```
+
+Common errors:
+
+- `400 Bad Request`: missing `company`, invalid JSON body, non-positive amount, or amount exceeds available balance
+- `401 Unauthorized`: missing or invalid JWT
+- `403 Forbidden`: token tenant mismatch or tenant payments are disabled
+- `404 Not Found`: tenant or account not found
+- `500 Internal Server Error`: database update, transaction creation, or commit failure
 
 ### Team: Resolvers
 

@@ -37,6 +37,14 @@ func TestGetProfileReturnsAuthenticatedUser(t *testing.T) {
 	if response.Email != user.Email {
 		t.Fatalf("expected email %q, got %q", user.Email, response.Email)
 	}
+
+	var responseFields map[string]any
+	if err := json.Unmarshal(res.Body.Bytes(), &responseFields); err != nil {
+		t.Fatalf("failed to parse profile response fields: %v", err)
+	}
+	if len(responseFields) != 2 {
+		t.Fatalf("expected profile response to include only name and email, got fields: %#v", responseFields)
+	}
 }
 
 func TestGetProfileRequiresCompanyQuery(t *testing.T) {
@@ -45,6 +53,9 @@ func TestGetProfileRequiresCompanyQuery(t *testing.T) {
 
 	if res.Code != http.StatusBadRequest {
 		t.Fatalf("expected status %d, got %d, body: %s", http.StatusBadRequest, res.Code, res.Body.String())
+	}
+	if res.Body.String() != "{\"error\":\"company query parameter is required\"}" {
+		t.Fatalf("expected missing company body, got %s", res.Body.String())
 	}
 }
 
@@ -65,6 +76,9 @@ func TestGetProfileRequiresValidJWT(t *testing.T) {
 
 	if res.Code != http.StatusUnauthorized {
 		t.Fatalf("expected status %d, got %d, body: %s", http.StatusUnauthorized, res.Code, res.Body.String())
+	}
+	if res.Body.String() != "{\"error\":\"missing or invalid authorization header\"}" {
+		t.Fatalf("expected missing jwt body, got %s", res.Body.String())
 	}
 }
 
@@ -87,6 +101,9 @@ func TestGetProfileRejectsInvalidJWT(t *testing.T) {
 	if res.Code != http.StatusUnauthorized {
 		t.Fatalf("expected status %d, got %d, body: %s", http.StatusUnauthorized, res.Code, res.Body.String())
 	}
+	if res.Body.String() != "{\"error\":\"invalid token\"}" {
+		t.Fatalf("expected invalid jwt body, got %s", res.Body.String())
+	}
 }
 
 func TestGetProfileRejectsTenantMismatch(t *testing.T) {
@@ -105,6 +122,9 @@ func TestGetProfileRejectsTenantMismatch(t *testing.T) {
 	if res.Code != http.StatusForbidden {
 		t.Fatalf("expected status %d, got %d, body: %s", http.StatusForbidden, res.Code, res.Body.String())
 	}
+	if res.Body.String() != "{\"error\":\"token tenant mismatch\"}" {
+		t.Fatalf("expected tenant mismatch body, got %s", res.Body.String())
+	}
 }
 
 func TestGetProfileReturnsNotFoundWhenTenantMissing(t *testing.T) {
@@ -113,6 +133,9 @@ func TestGetProfileReturnsNotFoundWhenTenantMissing(t *testing.T) {
 
 	if res.Code != http.StatusNotFound {
 		t.Fatalf("expected status %d, got %d, body: %s", http.StatusNotFound, res.Code, res.Body.String())
+	}
+	if res.Body.String() != "{\"error\":\"tenant not found\"}" {
+		t.Fatalf("expected tenant not found body, got %s", res.Body.String())
 	}
 }
 
@@ -125,6 +148,39 @@ func TestGetProfileReturnsNotFoundWhenUserMissing(t *testing.T) {
 	}
 	if res.Body.String() != "{\"error\":\"user not found\"}" {
 		t.Fatalf("expected user not found body, got %s", res.Body.String())
+	}
+}
+
+func TestGetProfileRejectsInvalidUserIDClaim(t *testing.T) {
+	db, tenant, _, _ := setupControllerTenantDB(t)
+
+	token, err := utils.GenerateToken(
+		"not-a-number",
+		strconv.FormatUint(uint64(tenant.ID), 10),
+		"test-secret",
+	)
+	if err != nil {
+		t.Fatalf("failed to generate token: %v", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	profileController := &controllers.ProfileController{DB: db}
+
+	protected := r.Group("/")
+	protected.Use(middleware.TenantResolver(db), middleware.JWTAuth("test-secret"))
+	protected.GET("/profile", profileController.GetProfile)
+
+	req := httptest.NewRequest(http.MethodGet, "/profile?company=acme", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+
+	if res.Code != http.StatusUnauthorized {
+		t.Fatalf("expected status %d, got %d, body: %s", http.StatusUnauthorized, res.Code, res.Body.String())
+	}
+	if res.Body.String() != "{\"error\":\"invalid token user\"}" {
+		t.Fatalf("expected invalid token user body, got %s", res.Body.String())
 	}
 }
 
