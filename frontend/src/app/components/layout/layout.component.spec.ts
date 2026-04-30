@@ -27,6 +27,7 @@ describe('LayoutComponent', () => {
       cardArt?: { frontGradient: string; backGradient: string };
     } | null;
     getAllPartners: () => Array<{ name: string }>;
+    isFeatureEnabled: (feature: string) => boolean;
   };
   let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
 
@@ -56,7 +57,8 @@ describe('LayoutComponent', () => {
           backGradient: 'linear-gradient(#000, #fff)'
         }
       }),
-      getAllPartners: () => [{ name: 'Chase Bank' }]
+      getAllPartners: () => [{ name: 'Chase Bank' }],
+      isFeatureEnabled: () => true
     };
 
     await TestBed.configureTestingModule({
@@ -120,5 +122,17 @@ describe('LayoutComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/login'], {
       queryParams: { company: 'chase-bank' }
     });
+  });
+
+  it('hides the profile link when the active tenant has profile access disabled', () => {
+    spyOn(authService, 'isAuthenticated').and.returnValue(true);
+    spyOn(tenantService, 'isFeatureEnabled').and.callFake((feature: string) => feature !== 'profileEnabled');
+
+    fixture.detectChanges();
+
+    const linkTexts = fixture.debugElement.queryAll(By.css('nav a')).map((element) => element.nativeElement.textContent.trim());
+
+    expect(linkTexts).toContain('Dashboard');
+    expect(linkTexts).not.toContain('Profile');
   });
 });

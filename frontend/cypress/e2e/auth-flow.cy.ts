@@ -272,4 +272,32 @@ describe('CardFlex auth flow', () => {
     cy.contains('jane.profile@example.com').should('be.visible');
     cy.contains('Chase Bank').should('be.visible');
   });
+
+  it('hides and blocks profile access when the tenant profile feature is disabled', () => {
+    cy.intercept('GET', 'http://localhost:8080/profile?company=capital-one', {
+      statusCode: 403,
+      body: { error: 'profiles are disabled for this tenant' }
+    }).as('profileRequest');
+
+    cy.visit('/?company=capital-one', {
+      onBeforeLoad(window) {
+        window.localStorage.setItem('cardflex_sessions', JSON.stringify({ 'capital-one': 'profile-disabled-jwt' }));
+      }
+    });
+
+    cy.contains('a', 'Dashboard').should('be.visible');
+    cy.contains('a', 'Profile').should('not.exist');
+
+    cy.visit('/profile?company=capital-one', {
+      onBeforeLoad(window) {
+        window.localStorage.setItem('cardflex_sessions', JSON.stringify({ 'capital-one': 'profile-disabled-jwt' }));
+      }
+    });
+
+    cy.wait('@profileRequest')
+      .its('request.headers.authorization')
+      .should('eq', 'Bearer profile-disabled-jwt');
+    cy.contains('profiles are disabled for this tenant').should('be.visible');
+    cy.location('pathname').should('eq', '/profile');
+  });
 });

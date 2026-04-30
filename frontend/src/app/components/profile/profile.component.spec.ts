@@ -140,4 +140,19 @@ describe('ProfileComponent', () => {
       queryParams: { company: 'acme' }
     });
   });
+
+  it('shows a disabled-profile message without clearing the tenant session', () => {
+    const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+    const logoutSpy = spyOn(authService, 'logout').and.callThrough();
+    spyOn(authService, 'getProfile').and.returnValue(
+      throwError(() => ({ status: 403, message: 'profiles are disabled for this tenant' }))
+    );
+
+    fixture.detectChanges();
+
+    expect(component.errorMessage).toBe('profiles are disabled for this tenant');
+    expect(logoutSpy).not.toHaveBeenCalled();
+    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Profile Unavailable');
+  });
 });

@@ -24,6 +24,11 @@ export class TenantService {
     console.log('Tenant company from URL:', this.tenant.companyCode);
   }
 
+  isFeatureEnabled(feature: string, defaultValue = true): boolean {
+    const tenant = this.getResolvedTenant();
+    return tenant.features?.[feature] ?? defaultValue;
+  }
+
   getTenant(): Tenant | null {
     return this.tenant;
   }
