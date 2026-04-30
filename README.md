@@ -50,22 +50,54 @@ https://cardflex.com?company=citibank
 
 ### Prerequisites
 
+- Go 1.22 or newer
 - Node.js and npm
-- Go (1.22+ recommended)
-- SQL database (SQLite is preconfigured)
+- Chrome or Chromium for Angular unit tests and Cypress
+- SQLite support, preconfigured through the Go SQLite driver
 
-### 1) Start Backend
+### Backend Environment
+
+Create `backend/.env` from the example file:
 
 ```bash
 cd backend
 cp .env.example .env
-# Fill DB_DRIVER, DB_DSN, and JWT_SECRET in .env
+```
+
+Expected local values:
+
+```dotenv
+PORT=8080
+DB_DRIVER=sqlite
+DB_DSN=cardflex.db
+JWT_SECRET=replace-with-a-local-development-secret
+```
+
+Environment variables:
+
+- `PORT`: backend HTTP port. The frontend expects `8080` by default.
+- `DB_DRIVER`: use `sqlite` for local development.
+- `DB_DSN`: SQLite database path. `cardflex.db` creates/uses the local repo database.
+- `JWT_SECRET`: required signing secret for login tokens.
+
+### Start Backend
+
+```bash
+cd backend
 go run .
 ```
 
-Backend runs on `http://localhost:8080` (health: `GET /ping`).
+Backend runs on `http://localhost:8080`.
 
-### 2) Start Frontend
+Health check:
+
+```bash
+curl http://localhost:8080/ping
+```
+
+### Start Frontend
+
+Install dependencies and start Angular:
 
 ```bash
 cd frontend
@@ -73,12 +105,15 @@ npm install
 npm start
 ```
 
-Frontend runs on `http://localhost:4200`.
+Frontend runs on `http://localhost:4200` and calls `http://localhost:8080` from `frontend/src/environments/environment.ts`.
 
-### 3) Open Tenant URLs
+### Example Tenant URLs
 
 ```text
 http://localhost:4200/?company=chase-bank
+http://localhost:4200/login?company=chase-bank
+http://localhost:4200/dashboard?company=chase-bank
+http://localhost:4200/profile?company=chase-bank
 http://localhost:4200/?company=capital-one
 http://localhost:4200/?company=wells-fargo
 ```
@@ -116,28 +151,52 @@ cd backend
 GOCACHE=/private/tmp/cardflex-go-build-cache go test -v ./...
 ```
 
-Expected backend packages:
-
-```text
-ok      cardflex-backend/controllers
-ok      cardflex-backend/middleware
-ok      cardflex-backend/migrations
-```
-
 ### Frontend Unit Tests
 
 ```bash
 cd frontend
-npm install
 npm test
 ```
 
-### Cypress Tests
-
-Run the backend and frontend first, then:
+### Frontend Production Build
 
 ```bash
 cd frontend
+npm run build
+```
+
+### Cypress End-to-End Tests
+
+Start both app servers first:
+
+```bash
+cd backend
+go run .
+```
+
+In another terminal:
+
+```bash
+cd frontend
+npm start
+```
+
+Then run Cypress:
+
+```bash
+cd frontend
+npm run cypress:run
+```
+
+### All Local Checks
+
+```bash
+cd backend
+GOCACHE=/private/tmp/cardflex-go-build-cache go test -v ./...
+
+cd ../frontend
+npm test
+npm run build
 npm run cypress:run
 ```
 

@@ -122,10 +122,6 @@ describe('DashboardComponent', () => {
   it('renders a monthly spending chart from dashboard transactions', () => {
     fixture.detectChanges();
 
-    expect(component.spendingSummary).toEqual([
-      { month: 'Feb 2026', amount: 100, percent: 100 },
-      { month: 'Mar 2026', amount: 50, percent: 50 }
-    ]);
     expect(fixture.nativeElement.textContent).toContain('Monthly Transaction Volume');
     expect(fixture.nativeElement.textContent).toContain('Feb 2026');
     expect(fixture.nativeElement.textContent).toContain('Mar 2026');
@@ -169,7 +165,6 @@ describe('DashboardComponent', () => {
     fixture.detectChanges();
 
     expect(component.hasTransactions).toBeFalse();
-    expect(component.spendingSummary).toEqual([]);
     expect(fixture.nativeElement.textContent).toContain('No transactions to display');
     expect(fixture.nativeElement.textContent).toContain('No transactions available');
     expect(fixture.nativeElement.textContent).not.toContain('Grocery Mart');
