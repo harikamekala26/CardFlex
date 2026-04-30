@@ -25,6 +25,19 @@ CardFlex provides a single, multi-tenant platform where:
 - Features can be enabled/disabled per company
 - Reduces development costs and accelerates time-to-market
 
+### Current Functionality
+
+- Tenant-aware branding and routing using the `company` query parameter.
+- Registration and login flows scoped to the selected tenant.
+- JWT-protected dashboard, profile, and payment endpoints.
+- Dashboard account summary and transaction history loaded from the backend database.
+- Tenant feature flags returned by the dashboard API.
+- Payment UI hidden when a tenant has payments disabled.
+- Payment submission with validation, balance updates, and transaction creation.
+- Profile retrieval for the authenticated tenant user.
+- Default account creation for new registered users.
+- Login-time account backfill for existing users missing an account.
+
 ### Example Usage
 
 ```
@@ -69,6 +82,71 @@ http://localhost:4200/?company=chase-bank
 http://localhost:4200/?company=capital-one
 http://localhost:4200/?company=wells-fargo
 ```
+
+### Demo Users
+
+Seeded demo users are available after the backend migrations run.
+
+Password for all demo users:
+
+```text
+secret123
+```
+
+Example demo accounts:
+
+```text
+demo+chase-bank@cardflex.local
+demo+wells-fargo@cardflex.local
+demo+capital-one@cardflex.local
+```
+
+Feature flag examples:
+
+- `chase-bank`: payments enabled, profile enabled
+- `wells-fargo`: payments disabled, profile enabled
+- `capital-one`: payments enabled, profile disabled
+
+## Tests
+
+### Backend Tests
+
+```bash
+cd backend
+GOCACHE=/private/tmp/cardflex-go-build-cache go test -v ./...
+```
+
+Expected backend packages:
+
+```text
+ok      cardflex-backend/controllers
+ok      cardflex-backend/middleware
+ok      cardflex-backend/migrations
+```
+
+### Frontend Unit Tests
+
+```bash
+cd frontend
+npm install
+npm test
+```
+
+### Cypress Tests
+
+Run the backend and frontend first, then:
+
+```bash
+cd frontend
+npm run cypress:run
+```
+
+## Sprint Documentation
+
+- `Sprint1.md`
+- `Sprint2.md`
+- `Sprint3.md`
+- `Sprint4.md`
 
 ## Backend API Reference
 
